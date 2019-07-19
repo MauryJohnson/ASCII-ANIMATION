@@ -396,6 +396,10 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				if(document.getElementById(Prev[0]+","+Prev[1])!=null){
 					var I = parseInt(Prev[0]);
 					var J = parseInt(Prev[1]);
+					
+					I+=Difference[0];
+					J+=Difference[1];
+					
 					var I2 = parseInt(PrevRelative[0]);
 					var J2 = parseInt(PrevRelative[1]);
 					
@@ -408,7 +412,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					}
 					
 					if(SpriteFragment!=undefined)
-						document.getElementById(Prev[0]+","+Prev[1]).innerHTML
+						document.getElementById(I+","+J).innerHTML
 						= SpriteFragment;
 					
 				}
@@ -445,6 +449,11 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		
 		var Difference = ComputeDifference(this.PivotPosition,P2);
 		
+		//Now use async func
+		//which waits by the delay set
+		//and then calls TranslateAll
+		//starts at pivot
+		
 		this.TranslateAll(Difference);
 	}
 	
@@ -453,31 +462,6 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	PrettyPrintASCIIGrid(this.ASCIIGRID)
 	    
 	};
-
-// Translate a sprite but only by relative path
-// Direction is [Y,X] format
-// Sprite is: [SpaceOccupied,]
-function Translate(Sprite,Direction){
-	
-	
-}
-
-//Create a sprite which is simply a collection of
-//ascii characters along with its given pivot point
-//Sprite MUST be in the format:
-/* [
-	
-			]
-
-*/
-//Pivot Point will be in the format:
-/*
- * [Sprite_PointY,Sprite_PointX]
- */
-//function CreateSprite(Sprite,PivitPoint){
-	
-//}
-
 </script>
 </head>
 <body>
