@@ -12,6 +12,29 @@ Later will allow this to scale down or up while
 maintaining a sprite
 */
 
+.PromptInput{
+margin:0px auto;
+display:inline-block;
+width:100%;
+}
+
+.Text{
+font-family:Luminari, cursive;
+display:inline;
+}
+
+.TextArea{
+width:80%;
+height:2.5vw;
+font-size:2vw;
+}
+
+.EnterRow{
+margin:0px auto;
+margin-left:28%;
+width:50%;
+}
+
 .CenterH1{
 	margin: 10px auto;
 	display:table;
@@ -42,6 +65,67 @@ maintaining a sprite
 
 </style>
 <script type="text/javascript">
+
+function ForceEvent(E,T){
+	if ("createEvent" in document) {
+	    var evt = document.createEvent("HTMLEvents");
+	    evt.initEvent(T, false, true);
+	    E.dispatchEvent(evt);
+	}
+}
+
+function Text(Value){
+	var Text = document.createElement("text");
+	Text.className="Text";
+	Text.innerHTML = Value;
+	return Text;
+}
+
+function TableD(V,N){
+	//if(V!=null){
+	var td = document.createElement("td");
+	
+	if(V){
+		td.appendChild(V);
+		td.id = "TD"+V.id;
+	}
+	
+	if(N)
+		td.innerHTML = N;
+	
+	return td;
+	//}
+}
+
+function InputPrompt2(Text){
+	
+	var PI = document.createElement("div");
+	PI.className="PromptInput";
+	
+	var TA = document.createElement("textarea");
+	TA.className="TextArea";
+	
+	PI.appendChild(Text);
+	
+	PI.appendChild(TA);
+	
+	return [PI,TA];
+	
+}
+
+function ArraysNotEqual(A1,A2){
+	if(A1.length!=A2.length)
+		return true;
+	
+	for(var i=0; i<A1.length && i<A2.length;i+=1)
+		for(var j=0; j<A1[i].length && j<A2[i].length;j+=1){
+			if(A1[i].length!=A2[i].length ||
+					A1[i][j]==A2[i][j])
+				return true;
+		}
+	
+	return false;
+}
 
 function CreateAsyncFunctions(Options){
 	if(Options==null)
@@ -133,11 +217,35 @@ function CreateAsyncFunctions(Options){
 	
 }
 
+function ValidCoords(S){
+	if(S.length==2){
+		if(! isNaN(parseInt(S[0])) && !isNaN(parseInt(S[1]))
+				){
+			console.log(S+" is valid");
+		
+			//IF Sprite1 is active...
+			//Move it
+			return true;
+			
+		}
+		else{
+			console.log(S+" is not valid");
+		}
+	}
+	else{
+		console.log(S+" is not valid");
+	}
+	return false;
+}
+
 //Set the type of empty space that you want
 //Size may vary, but percentage taken will be consistent
 //underscore was the best that I could find that is consistent
 //So I will keep this here as the default
 var EmptySpace = "_";
+
+
+var Sprite1;
 
 //Since a character takes up a const space in column, 
 //This is not needed
@@ -166,7 +274,10 @@ function AddRow(Grid){
 function AddColumn(Row){
 	var Column = document.createElement("span");
 	Column.className="Column";
-	Column.innerHTML=EmptySpace;
+	
+	var T = Text(EmptySpace);
+	
+	Column.appendChild(T);
 	
 	if(Row){
 		Row.appendChild(Column);
@@ -264,6 +375,27 @@ function CreateGrid(Height,Width,Precision){
  
  */
  
+ function ClearTable(){
+	var Table = document.getElementsByClassName("Center")[0];
+	var Rows = Table.childNodes;
+	for(var i=0; i<Rows.length;i+=1)
+		{
+		var Columns = Rows[i].childNodes;
+		for(var j=0; j<Columns.length;j+=1){
+			
+			UpdateValue(Columns[j].childNodes[0],EmptySpace);
+			
+		}
+		
+		}
+}
+ 
+ function UpdateValue(E,V){
+	var Parent = E.parentNode;
+	Parent.removeChild(E);
+	Parent.appendChild(Text(V));
+}
+ 
 //But instead of storing elements, this stores ASCII values
 //Can be as small as one element to as large as the grid
 //PivitPosition is the position in which the topleft-most
@@ -306,6 +438,74 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		}
 	}
 	
+	function GetASCIIGridLengths(){
+		var AG = document.getElementsByClassName("Center")[0]
+		var AR = document.getElementsByClassName("Row")[0];
+		console.log("ASCII GRID LENGTHS:"+[AG.childNodes.length,AR.childNodes.length]);
+		return [AG.childNodes.length,AR.childNodes.length];
+	}
+	
+	function SetOffset(PivotPosition,ASCIIGRID){
+		//Only need an offset if out of bounds in negative direction
+		var Offset = [0,0];
+		
+		if(PivotPosition[0]<0){
+			Offset[0] = (ASCIIGRID.length) +
+			PivotPosition[0];
+		}
+		else if( PivotPosition[0]>=ASCIIGRID.length){
+			Offset[0] = (ASCIIGRID.length-1) -
+			PivotPosition[0];
+		}
+		if(PivotPosition[1]<0){
+			Offset[1] = (ASCIIGRID[0].length) +
+			PivotPosition[1];
+		}
+		else if(PivotPosition[1]>=ASCIIGRID[0].length){
+			Offset[1] = (ASCIIGRID[0].length-1) -
+			PivotPosition[1];
+		}
+		
+		return Offset;
+	}
+	
+	//Use pivot position as reference
+	// [[E,Y,X],...,]
+	this.SetAllPositions = function (){
+		
+		var Offset = SetOffset(this.PivotPosition,ASCIIGRID);
+		
+		var R = 0;
+	
+		var Positions = [];
+		
+		var AGLengths = GetASCIIGridLengths();
+		
+		for(var i=this.PivotPosition[0]+Offset[0];
+		R<this.ASCIIGRID.length
+		&& i<AGLengths[0]+Offset[0];i+=1,R+=1){
+			
+			var C = 0;
+			
+			for(var j=this.PivotPosition[1]+Offset[1]; 
+			C<this.ASCIIGRID[R].length && 
+			j<AGLengths[1]+Offset[1];j+=1,C+=1
+			){
+				
+				var FullKey = R+","+C;
+				var RelativeKey = i+","+j;
+				var E = document.getElementById(FullKey);
+				Positions.push([E,FullKey,RelativeKey]);
+				
+			}
+		}
+		
+		console.log("ALL POSITIONS:"+Positions);
+		
+		return Positions;
+		
+	}
+	
 	//Create 2D list of all Previous positions by iterating
 	//ASCIIGRID and keeping less than that and my sub grid together
 	//And also set the previous positions to EmptySpace
@@ -319,106 +519,65 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		
 		var Key;
 		
-		//Only need an offset if out of bounds in negative direction
-		var Offset = [0,0];
-		
-		if(this.PivotPosition[0]<0){
-			Offset[0] = (ASCIIGRID.length) +
-			this.PivotPosition[0];
-		}
-		else if( this.PivotPosition[0]>=ASCIIGRID.length){
-			Offset[0] = (ASCIIGRID.length-1) -
-			this.PivotPosition[0];
-		}
-		if(this.PivotPosition[1]<0){
-			Offset[1] = (ASCIIGRID[0].length) +
-			this.PivotPosition[1];
-		}
-		else if(this.PivotPosition[1]>=ASCIIGRID[0].length){
-			Offset[1] = (ASCIIGRID[0].length-1) -
-			this.PivotPosition[1];
-		}
-		
-		
+		var Offset = SetOffset(this.PivotPosition,ASCIIGRID);
 		
 		console.log("OFFSET:"+Offset);
 		
-		Key = this.PivotPosition[0]+","+this.PivotPosition[1];
-		if(document.getElementById(Key)!=null)
-			document.getElementById(Key).innerHTML=EmptySpace;
+		//Create List of next positions
+		var NextPositions = [];
 		
-		var PreviousPivotPosition = this.PivotPosition;
-		
-		var ListOfNeighborPreviousPositions = [];
-		
-		var RC = 0;
-		
-		
-		for(var i=PreviousPivotPosition[0]+Offset[0];  
-								   RC<this.ASCIIGRID.length
-								   &&i<ASCIIGRID.length+Offset[0];	
-								   							i+=1){
-			var CC = 0;
-			for(var j=PreviousPivotPosition[1]+Offset[1]; 
-									   CC<this.ASCIIGRID[RC].length
-									   &&j<ASCIIGRID.length+Offset[1];
-																j+=1){
-					
-					Key = (i-Offset[0])+","+(j-Offset[1]);
-					var RelativeKey = [RC+","+CC];
-					
-					ListOfNeighborPreviousPositions
-					.push([Key,RelativeKey]);
-					
-					if(document.getElementById(Key)!=null)
-						document.getElementById(Key).innerHTML=EmptySpace;
-					
-					CC+=1;
-					
-			}
-			RC+=1;
+		for(var i=0; 
+		i<this.AllPivotPositions.length;i+=1){
+			var E = this.AllPivotPositions[i][0];
+			
+			var S = this.AllPivotPositions[i][1].split(",");
+			var S2 = this.AllPivotPositions[i][2].split(",");
+			
+			var I = parseInt(S[0]) +Difference[0];
+			var J = parseInt(S[1]) +Difference[1];
+			
+			var I2 = parseInt(S2[0]);
+			var J2 = parseInt(S2[1]);
+			
+			NextPositions.push([E,I+","+J,I2+","+J2]);
 		}
 		
-		console.log(" PIVOT POSITION:"+this.PivotPosition);
-		console.log(" VISIBLE Previous Positions -> Relative Positions:");
-		PrettyPrintASCIIGrid(ListOfNeighborPreviousPositions);
+		console.log("NEXT POSITIONS:"+NextPositions);
 		
-		this.PivotPosition[0]+=Difference[0];
-		this.PivotPosition[1]+=Difference[1];
-		
-		//Now translate the rest of the positions
-		for(var i=0; i<ListOfNeighborPreviousPositions.length;i+=1){
+		for(var i=0; i<NextPositions.length;i+=1){
+			var Prev = 
+				NextPositions[i][0].childNodes[0];
 			
-			var Prev = ListOfNeighborPreviousPositions[i][0].split(",");
+			var S = NextPositions[i][1].split(",");
 			
-			var PrevRelative = 	ListOfNeighborPreviousPositions[i][1][0].split(",");
+			var I = parseInt(S[0]);
+			var J = parseInt(S[1]);
 			
-				if(document.getElementById(Prev[0]+","+Prev[1])!=null){
-					var I = parseInt(Prev[0]);
-					var J = parseInt(Prev[1]);
-					
-					I+=Difference[0];
-					J+=Difference[1];
-					
-					var I2 = parseInt(PrevRelative[0]);
-					var J2 = parseInt(PrevRelative[1]);
-					
-					var SpriteFragment = undefined;
-					if(I>=0 && J>=0 ){
-						if(I<ASCIIGRID.length)
-							if(J<ASCIIGRID[I].length){
-								SpriteFragment = this.ASCIIGRID[I2][J2];
-							}
-					}
-					
-					if(SpriteFragment!=undefined)
-						document.getElementById(I+","+J).innerHTML
-						= SpriteFragment;
-					
-				}
+			var Next = document.getElementById(I+","+J).childNodes[0];
+			
+			var Relative = NextPositions[i][2].split(",");
+			var Value = Prev.innerHTML;
+			
+			UpdateValue(Prev.childNodes[0],EmptySpace);
+			
+			var I2 = parseInt(Relative[0]);
+			var J2 = parseInt(Relative[1]);
+			
+			console.log("ACCESS:"+I2+","+J2);
+			
+			UpdateValue(Next.childNodes[0],
+			this.ASCIIGRID
+			[I2]
+			[J2]	
+			);
+			
 		}
+		
+		this.AllPivotPositions = this.SetAllPositions();
 		
 	}
+	
+	
 	
 	//Private Static Function
 	function ComputeDifference(P1,P2){
@@ -432,6 +591,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	//Pivot Position will be updates every transition
 	this.PivotPosition = PivotPosition;
 	this.ASCIIGRID = SubASCIIGrid;
+	this.AllPivotPositions = this.SetAllPositions();
 	
 	//Public function callable from object Sprite
 	//Translation Function from here to there
@@ -447,6 +607,9 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		if(P2.length!=2)
 			return;
 		
+
+		console.log("Translate");
+		
 		var Difference = ComputeDifference(this.PivotPosition,P2);
 		
 		//Now use async func
@@ -461,6 +624,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	console.log("SUB ASCII GRID: ");
 	PrettyPrintASCIIGrid(this.ASCIIGRID)
 	    
+	//this.Translate(this.PivotPosition);
+	
 	};
 </script>
 </head>
@@ -476,7 +641,6 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 <div class="Column" style="font-size:3px;">t</div>
 <div class="Column" style="font-size:3px;">t</div>
 <div class="Column" style="font-size:3px;">t</div>
-
 </div>
 -->
 
@@ -488,19 +652,89 @@ var Width = 40;
 //Approximately, for every 1px in height, add 2 px in width
 CreateGrid(Height,Width,1);
 
+var Row = document.createElement("table");
+Row.className="EnterRow";
+var EnterCoordinates = InputPrompt2(
+		Text("Enter Coordinates y,x"));
+var TR1 = document.createElement("tr");
+TR1.appendChild(TableD(EnterCoordinates[0]));
+Row.appendChild(TR1);
+
+var EnterSprite = InputPrompt2(
+		Text("Enter 2D Sprite Array [['X',..,],..,[]]"));
+//var TR2 = document.createElement("tr");
+TR1.appendChild(TableD(EnterSprite[0]));
+Row.appendChild(TR1);
+
+document.body.appendChild(Row);
+EnterCoordinates[1].addEventListener("input",function(){
+	var S = this.value.split(",");
+	
+	ClearTable();
+	
+	if(ValidCoords(S)==true){
+		if(Sprite1){
+			Sprite1.Translate(S);
+		}
+		ForceEvent(document.getElementsByTagName("textarea")[1],"input");
+	}
+	
+});
+
+EnterSprite[1].style.height="300px";
+EnterSprite[1].style.fontSize="1.5vw";
+
+EnterSprite[1].addEventListener("input",function(){
+	var Array;
+	//try{
+	Array = eval(this.value);
+	Array.push();
+	console.log("ARRAY:"+Array);
+	
+	//Sprite1 = new Sprite([])
+	
+	
+	var Coords = document.getElementsByTagName("textarea")[0].value.split(",");
+	
+	if(ValidCoords(Coords)==true){
+		
+		
+		var Sprite2 = new Sprite(Coords,Array,500);
+		
+		if(Sprite1==null){
+			//alert("New Sprite");
+			Sprite1 = new Sprite(Coords,Array,500);
+		}
+		else if(ArraysNotEqual(Sprite1.ASCIIGRID,Sprite2.ASCIIGRID)==true){
+			//alert("New Sprite");
+			Sprite1=Sprite2;
+		}
+		else{
+			ClearTable();
+			console.log("NOT UNIQUE: "+Sprite1.ASCIIGRID+"=="+Sprite2.ASCIIGRID);
+		}
+	}
+	
+	//ForceEvent(document.getElementsByClassName[0],"input");
+	
+	//}
+	//catch(e){
+		//console.log(e+" Invalid ARRAY:"+this.value.split("\n").join(""));
+	//}
+});
+
 //Some testing
 document.getElementById("5,5").innerHTML="a";
 
-var Sprite1 = new Sprite(
-		[19,0],
-		[
-		 ["*","*"],
-		 ["*","*"]	
-			],
-		500
-		);
+//var 
 
-Sprite1.Translate([5,5]);
+Sprite1 = new Sprite([0,0],[
+["*","","*"],
+["","*",""],
+["*","","*"]
+],500);
+
+//Sprite1.Translate([5,5]);
 
 </script>
 </body>
