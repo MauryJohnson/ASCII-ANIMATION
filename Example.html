@@ -120,7 +120,7 @@ function ArraysNotEqual(A1,A2){
 	for(var i=0; i<A1.length && i<A2.length;i+=1)
 		for(var j=0; j<A1[i].length && j<A2[i].length;j+=1){
 			if(A1[i].length!=A2[i].length ||
-					A1[i][j]==A2[i][j])
+					A1[i][j]!=A2[i][j])
 				return true;
 		}
 	
@@ -375,26 +375,74 @@ function CreateGrid(Height,Width,Precision){
  
  */
  
- function ClearTable(){
-	var Table = document.getElementsByClassName("Center")[0];
-	var Rows = Table.childNodes;
-	for(var i=0; i<Rows.length;i+=1)
+ function NotClear(){
+	 var Table = document.getElementsByClassName("Center")[0];
+		var Rows = Table.childNodes;
+	
+	 for(var i=0; i<Rows.length;i+=1)
 		{
 		var Columns = Rows[i].childNodes;
 		for(var j=0; j<Columns.length;j+=1){
 			
-			UpdateValue(Columns[j].childNodes[0],EmptySpace);
+			//UpdateValue(Columns[j].childNodes[0],EmptySpace);
+			
+			if(Columns[j].childNodes[0].innerHTML!=EmptySpace)
+				return true;
 			
 		}
 		
 		}
+	
+	return false;
 }
  
- function UpdateValue(E,V){
-	var Parent = E.parentNode;
-	Parent.removeChild(E);
+ 
+ 
+ function UpdateValue(Parent,E,V){
+	//var Parent = E.parentElement;
+	
+	console.log("UPDATE VALUE:"+E.innerHTML+" TO:"+V);
+	
+	//Parent.removeChild(E);
+	
+	//E.parentNode.removeChild(E);
+	
+	Parent.innerHTML = "";
+	
+	//while(Parent.childNodes.length!=0){
+		
+	//}
+	
+	//var T = document.createElement("input");
+	//T.innerHTML = V;
+	
 	Parent.appendChild(Text(V));
+	
+	//while(Parent.childNodes.length==0){
+		
+	//}
+	
 }
+ 
+ function ClearTable(){
+		var Table = document.getElementsByClassName("Center")[0];
+		var Rows = Table.childNodes;
+		
+		do{
+		
+		for(var i=0; i<Rows.length;i+=1)
+			{
+			var Columns = Rows[i].childNodes;
+			for(var j=0; j<Columns.length;j+=1){
+				
+				UpdateValue(Columns[j],Columns[j].childNodes[0],EmptySpace);
+				
+			}
+			
+			}
+		
+		}while(NotClear());
+	}
  
 //But instead of storing elements, this stores ASCII values
 //Can be as small as one element to as large as the grid
@@ -466,7 +514,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			PivotPosition[1];
 		}
 		
-		return Offset;
+		return [parseInt(Offset[0]),parseInt(Offset[1])];
 	}
 	
 	//Use pivot position as reference
@@ -481,19 +529,20 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		
 		var AGLengths = GetASCIIGridLengths();
 		
-		for(var i=this.PivotPosition[0]+Offset[0];
+		for(var i=parseInt(this.PivotPosition[0])+(Offset[0]);
 		R<this.ASCIIGRID.length
 		&& i<AGLengths[0]+Offset[0];i+=1,R+=1){
 			
 			var C = 0;
 			
-			for(var j=this.PivotPosition[1]+Offset[1]; 
+			for(var j=parseInt(this.PivotPosition[1])+Offset[1]; 
 			C<this.ASCIIGRID[R].length && 
 			j<AGLengths[1]+Offset[1];j+=1,C+=1
 			){
 				
 				var FullKey = R+","+C;
 				var RelativeKey = i+","+j;
+				console.log("RelativeKey:"+RelativeKey);
 				var E = document.getElementById(FullKey);
 				Positions.push([E,FullKey,RelativeKey]);
 				
@@ -530,12 +579,13 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		i<this.AllPivotPositions.length;i+=1){
 			var E = this.AllPivotPositions[i][0];
 			
+			//Next
 			var S = this.AllPivotPositions[i][1].split(",");
-			var S2 = this.AllPivotPositions[i][2].split(",");
-			
 			var I = parseInt(S[0]) +Difference[0];
 			var J = parseInt(S[1]) +Difference[1];
 			
+			//Relative
+			var S2 = this.AllPivotPositions[i][2].split(",");
 			var I2 = parseInt(S2[0]);
 			var J2 = parseInt(S2[1]);
 			
@@ -545,31 +595,47 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		console.log("NEXT POSITIONS:"+NextPositions);
 		
 		for(var i=0; i<NextPositions.length;i+=1){
-			var Prev = 
-				NextPositions[i][0].childNodes[0];
+			var ParentPrev;
+			var Prev;
 			
+			//Prev Text Element
+			var ParentPrev = NextPositions[i][0];
+			if(ParentPrev)
+				Prev = ParentPrev.childNodes[0];
+			
+			console.log("PARENT PREV:"+ParentPrev+" PREV:"+Prev);			
+			//Next
 			var S = NextPositions[i][1].split(",");
-			
 			var I = parseInt(S[0]);
 			var J = parseInt(S[1]);
+			var ParentNext;
+			var Next;
 			
-			var Next = document.getElementById(I+","+J).childNodes[0];
+			
+			var ParentNext = document.getElementById(I+","+J);
+			if(ParentNext)
+				Next = ParentNext.childNodes[0];
+			
+		
+			console.log("PARENT:"+ParentNext+" NEXT:"+Next);
 			
 			var Relative = NextPositions[i][2].split(",");
-			var Value = Prev.innerHTML;
 			
-			UpdateValue(Prev.childNodes[0],EmptySpace);
+			UpdateValue(ParentPrev,Prev,EmptySpace);
 			
 			var I2 = parseInt(Relative[0]);
 			var J2 = parseInt(Relative[1]);
 			
-			console.log("ACCESS:"+I2+","+J2);
+			var Value = this.ASCIIGRID[I2][J2];
 			
-			UpdateValue(Next.childNodes[0],
-			this.ASCIIGRID
-			[I2]
-			[J2]	
-			);
+			console.log("ACCESS:"+I2+","+J2+" VAL:"+Value);
+			
+			if(Next)
+				UpdateValue(ParentNext,Next,
+				this.ASCIIGRID
+				[I2]
+				[J2]	
+				);
 			
 		}
 		
@@ -646,8 +712,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 
 <script type="text/javascript">
 
-var Height = 20;
-var Width = 40;
+var Height = 10;
+var Width = 20;
 
 //Approximately, for every 1px in height, add 2 px in width
 CreateGrid(Height,Width,1);
@@ -670,7 +736,7 @@ document.body.appendChild(Row);
 EnterCoordinates[1].addEventListener("input",function(){
 	var S = this.value.split(",");
 	
-	ClearTable();
+	//ClearTable();
 	
 	if(ValidCoords(S)==true){
 		if(Sprite1){
@@ -686,7 +752,7 @@ EnterSprite[1].style.fontSize="1.5vw";
 
 EnterSprite[1].addEventListener("input",function(){
 	var Array;
-	//try{
+	try{
 	Array = eval(this.value);
 	Array.push();
 	console.log("ARRAY:"+Array);
@@ -698,29 +764,36 @@ EnterSprite[1].addEventListener("input",function(){
 	
 	if(ValidCoords(Coords)==true){
 		
-		
 		var Sprite2 = new Sprite(Coords,Array,500);
 		
 		if(Sprite1==null){
 			//alert("New Sprite");
 			Sprite1 = new Sprite(Coords,Array,500);
+			//Sprite1.Translate([);
+			//ClearTable();
+			Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else if(ArraysNotEqual(Sprite1.ASCIIGRID,Sprite2.ASCIIGRID)==true){
 			//alert("New Sprite");
+			
+			delete Sprite1;
+			
 			Sprite1=Sprite2;
+			//ClearTable();
+			Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else{
-			ClearTable();
+			//ClearTable();
 			console.log("NOT UNIQUE: "+Sprite1.ASCIIGRID+"=="+Sprite2.ASCIIGRID);
 		}
 	}
 	
 	//ForceEvent(document.getElementsByClassName[0],"input");
 	
-	//}
-	//catch(e){
-		//console.log(e+" Invalid ARRAY:"+this.value.split("\n").join(""));
-	//}
+	}
+	catch(e){
+		console.log(e+" Invalid ARRAY:"+this.value.split("\n").join(""));
+	}
 });
 
 //Some testing
@@ -728,11 +801,17 @@ document.getElementById("5,5").innerHTML="a";
 
 //var 
 
+/*
 Sprite1 = new Sprite([0,0],[
-["*","","*"],
-["","*",""],
-["*","","*"]
+["*","-","*"],
+["-","*","-"],
+["*","-","*"]
 ],500);
+*/
+
+Sprite1 = new Sprite([0,0],[
+	["8"]
+	],500);
 
 //Sprite1.Translate([5,5]);
 
