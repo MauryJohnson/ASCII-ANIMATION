@@ -105,8 +105,14 @@ function TableR(E,V){
 }
 
 function SelectionPrompt(Name,Options){
-	var Select = document.createElement("select");
+	var Prompt = document.createElement("div");
+	var Select=document.createElement("select");
+	var T = Text(Name);
+	T.style.display="block";
+	Prompt.appendChild(T);
 	Select.id=Name;
+	Select.style.width="50%";
+	Prompt.appendChild(Select);
 	var OptGroup = document.createElement("optgroup");
 	Select.appendChild(OptGroup);
 	for(var i=0; i<Options.length;i+=1){
@@ -114,7 +120,7 @@ function SelectionPrompt(Name,Options){
 		Option.innerHTML = Options[i];
 		OptGroup.appendChild(Option);
 	}
-	return [Select,OptGroup];
+	return [Select,Prompt,OptGroup];
 }
 	
 function InputPrompt2(Text){
@@ -646,11 +652,11 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 							
 							return true;
 						}
-						else
-							return false;
+						//else
+							//return false;
 					}
 					else if(SubDifference[IDX]>=0){
-						if(SubDifference[IDX]<Difference[IDX]){
+						if(SubDifference[IDX]<=Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -664,7 +670,9 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				,
 				
 				//This should be MAX time it will take!
-				this.Delay*(Difference[0]<=0? Difference[0]*-1:Difference[0]),
+				this.Delay*(Difference[0]<=0? Difference[0]*-1:Difference[0])
+				+(Difference[0]<=0? Difference[0]*-1:Difference[0])
+				,
 				
 				this.Delay,
 				
@@ -739,8 +747,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 							
 							return true;
 						}
-						else
-							return false;
+						//else
+							//return false;
 					}
 					else if(SubDifference[IDX]>=0){
 						if(SubDifference[IDX]<=Difference[IDX]){
@@ -757,7 +765,10 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				
 				,
 				
-				this.Delay*(Difference[1]<=0? Difference[1]*-1:Difference[1]),
+				this.Delay*(Difference[1]<=0? Difference[1]*-1:Difference[1])
+				+ (Difference[1]<=0? Difference[1]*-1:Difference[1])
+				
+				,
 				
 				this.Delay,
 				
@@ -1113,7 +1124,19 @@ var TR2 = document.createElement("tr");
 TR2.appendChild(TableD(EnterAnimationCoordinates[0]));
 var SP = SelectionPrompt("Select Movement Type"
 		,["row->column","column->row"]);
-TR2.appendChild(SP[0]);
+TR2.appendChild(SP[1]);
+var PromptDelaySpeed = InputPrompt2(Text("Enter Delay Speed (default 500ms)"));
+TR2.appendChild(PromptDelaySpeed[0]);
+PromptDelaySpeed[1].addEventListener("input",function(){
+	var X = parseInt(this.value);
+	if(!isNaN(X))
+		if(Sprite1)
+			Sprite1.Delay=X;
+		else
+			console.log("No Sprite to Set Delay");
+	else
+		console.log("Invalid Delay:"+this.value);
+});
 Row.appendChild(TR2);
 //tionPrompt("",[]))
 
