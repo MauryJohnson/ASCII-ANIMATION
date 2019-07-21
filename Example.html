@@ -97,6 +97,13 @@ function TableD(V,N){
 	//}
 }
 
+function TableR(E,V){
+	//if(V!=null){
+	var tr = document.createElement("tr");
+	tr.appendChild(TableD(E,V));
+	return tr;
+}
+
 function InputPrompt2(Text){
 	
 	var PI = document.createElement("div");
@@ -130,10 +137,7 @@ function ArraysNotEqual(A1,A2){
 function CreateAsyncFunctions(Options){
 	if(Options==null)
 		return;
-	if(Options.length<5){
-		alert("Be wary of using this function recklessly...");
-		return;
-	}
+	
 	
 	/*
 	 * Options [[func1,Params,LogicFunction,MaxLife,Duration,AfterFunc],....,]
@@ -146,6 +150,11 @@ function CreateAsyncFunctions(Options){
 	 	Can be chained indefinitely
 	 */
 	for(var i=0; i<Options.length;i+=1){
+		
+		if(Options[i].length<5){
+			alert("Be wary of using this function recklessly...");
+			return;
+		}
 		
 		var Func = Options[i][0];
 		var Params = Options[i][1];
@@ -166,7 +175,7 @@ function CreateAsyncFunctions(Options){
 				
 			//console.log("FUNCTION IN ACTION");	
 				
-			Interval+=Duration * Math.random();
+			Interval+=Duration; //* Math.random();
 			
 			var Ret;
 			
@@ -178,7 +187,7 @@ function CreateAsyncFunctions(Options){
 			
 			//Logic if exists
 			if(LogicFunction)
-				X = LogicFunction([MaxLife,Interval,Duration].concat(Params));
+				X = LogicFunction([MaxLife,Interval,Duration].concat(Params).concat(Ret));
 			
 			//Logic Func not exist
 			if(X==true){
@@ -187,7 +196,7 @@ function CreateAsyncFunctions(Options){
 				
 				//Commit STILL to the time
 				if(Interval<=MaxLife)
-				 setTimeout(Time, Duration*Math.random());
+				 setTimeout(Time, Duration);
 				else{
 				
 					if(AfterFunc!=null)
@@ -566,6 +575,260 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		
 	}
 	
+	this.TranslateByRow = function(Difference,Callback,This){
+		 
+		if(this.AVAILABLE==true){
+		this.AVAILABLE==false;
+		//Ignore Difference of column
+		Difference[1] = 0;
+	   
+		CreateAsyncFunctions([
+			[
+				//This function WILL increment position given by 1
+				//Then return
+				function(Params){
+					var IDX = 0;	
+					console.log("PARAMS:"+Params);
+					var Difference = Params[0];
+					var SubDifference = 
+						(Difference[IDX]>=0?
+						[1,0]:[-1,0]);
+					return SubDifference;
+				}
+				,
+				[Difference,this]
+				,
+				//Logic function takes diff and subdiff
+				//Subtract diff by subdiff
+				function(Params){
+					var IDX = 0;
+					console.log("PARAMS2:"+Params);
+					var SubDifference = [Params[Params.length-2],
+						Params[Params.length-1]
+						];
+					
+					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
+					
+					//console.log("SD:"+SubDifference);
+					var Difference = [Params[Params.length-5],
+						Params[Params.length-4]];
+					
+					var This = Params[Params.length-3];
+					
+					if(SubDifference[IDX]<0){
+						if(SubDifference[IDX]>=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							return true;
+						}
+						else
+							return false;
+					}
+					else if(SubDifference[IDX]>0){
+						if(SubDifference[IDX]<=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							return true;
+						}
+						else
+							return false;
+					}
+					else
+						return false;
+				}
+				
+				,
+				
+				//This should be MAX time it will take!
+				this.Delay*Difference[0],
+				
+				this.Delay,
+				
+				function(){
+					console.log("FINISHED ANIMATION BY ROW FOR SPRITE");
+					This.AVAILABLE=true;
+					Callback(This);
+				}
+				
+			]
+		]);
+		}
+	};
+	
+	this.TranslateByColumn = function(Difference,Callback,This){
+		 
+		//Ignore Difference of column
+		Difference[1] = 0;
+	   
+		CreateAsyncFunctions([
+			[
+				//This function WILL increment position given by 1
+				//Then return
+				function(Params){
+					var IDX = 1;	
+				
+					var Difference = Params[0];
+					var SubDifference = 
+						(Difference[IDX]>=0?
+						[0,1]:[0,-1]);
+					return SubDifference;
+				}
+				,
+				[Difference]
+				,
+				//Logic function takes diff and subdiff
+				//Subtract diff by subdiff
+				function(Params){
+					var IDX = 1;
+				
+					var SubDifference = [Params[Params.length-3],
+						Params[Params.length-2]
+						];
+					
+					SubDifference[IDX] *= (parseInt(Params[0]/parseInt(Params[1])));
+					
+					//console.log("SD:"+SubDifference);
+					var Difference = [Params[Params.length-5],
+						Params[Params.length-4]];
+					
+					var This = Params[Params.length-3];
+					
+					if(SubDifference[IDX]<0){
+						if(SubDifference[IDX]>=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							Difference[IDX]-=1;
+							
+							return true;
+						}
+						else
+							return false;
+					}
+					else if(SubDifference[IDX]>0){
+						if(SubDifference[IDX]<=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							Difference[IDX]+=1;
+							
+							return true;
+						}
+						else
+							return false;
+					}
+				}
+				
+				,
+				
+				this.Delay*1000,
+				
+				this.Delay,
+				
+				function(){
+					console.log("FINISHED ANIMATION BY COLUMN FOR SPRITE");
+					
+					Callback(This);
+				
+				}
+				
+			]
+		]);
+	};
+	
+	this.TranslateByBoth = function(Difference,Callback){
+		 
+		//Ignore Difference of column
+		Difference[1] = 0;
+	   
+		CreateAsyncFunctions([
+			[
+				//This function WILL increment position given by 1
+				//Then return
+				function(Params){
+					//var IDX = 1;	
+					
+					var SubDifference = [0,0];
+					var Difference = Params[0];
+					
+					SubDifference[0] = 
+						(Difference[0]>=0?
+						1:-1);
+					
+					
+					//if(Differ)
+					SubDifference[1] = 
+						(Difference[1]>=0?
+						1:-1);
+					
+					return SubDifference;
+				}
+				,
+				[Difference]
+				,
+				//Logic function takes diff and subdiff
+				//Subtract diff by subdiff
+				function(Params){
+					var IDX = 1;
+				
+					//Create Better SubDifference by time
+					// MaxInterval / Current = placement
+					
+					var SubDifference = [Params[Params.length-3],
+						Params[Params.length-2]
+						];
+					
+					SubDifference[IDX] *= (parseInt(Params[0]/parseInt(Params[1])));
+					
+					
+					//console.log("SD:"+SubDifference);
+					var Difference = [Params[Params.length-5],
+						Params[Params.length-4]];
+					
+					var This = Params[Params.length-3];
+					
+					if(SubDifference[IDX]<0){
+						if(SubDifference[IDX]>=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							
+							return true;
+						}
+						else
+							return false;
+					}
+					else if(SubDifference[IDX]>0){
+						if(SubDifference[IDX]<=Difference[IDX]){
+							
+							This.TranslateAll(SubDifference,false,false);
+							
+							return true;
+						}
+						else
+							return false;
+					}
+				}
+				
+				,
+				
+				this.Delay*1000,
+				
+				this.Delay,
+				
+				function(){
+					console.log("FINISHED ANIMATION BY COLUMN FOR SPRITE");
+					
+					Callback();
+				
+				}
+				
+			]
+		]);
+	};
+	
 	//Create 2D list of all Previous positions by iterating
 	//ASCIIGRID and keeping less than that and my sub grid together
 	//And also set the previous positions to EmptySpace
@@ -573,12 +836,47 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	//Then Starting From Pivot Position, first translate this
 	//Then translate all other positions based off of Difference
 	//neighbors
-	this.TranslateAll = function (Difference){
+	//If ByRow is true, will start firt by row, then column
+	//If ByColumn is true, start by column then row
+	//If both are true, go directly to position with waits.
+	this.TranslateAll = function (Difference,ByRow,ByColumn){
 		
 		ClearTable();
 		
 		console.log("TRANSLATE ALL BY DIFFERENCE:"+Difference);
 		
+		//Create three types of async
+		if(ByRow==true && ByColumn==true){
+			//Translate by both
+			this.TranslateByBoth(Difference,function(){
+				
+			});
+		}
+		else if(ByRow==true){
+			//Translate ByRow, then Translate By Column
+			this.TranslateByRow(Difference,function(This){
+				
+				This.TranslateByColumn(Difference,function(){
+					
+				
+				},this);	
+				
+			},this);
+		}
+		else if(ByColumn==true){
+			//Translate ByColumn, then Translate By Row
+			this.TranslateByColumn(Difference,function(This){
+				
+				This.TranslateByRow(Difference,function(){
+					
+				
+				});	
+				
+			});
+			
+		}
+		
+		else{
 		var Key;
 		
 		var Offset = SetOffset(this.PivotPosition,ASCIIGRID);
@@ -662,8 +960,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	
 		this.PivotPosition = [parseInt(FP[0]),parseInt(FP[1])];
 		
-		
-		//this.PivotPosition
+		}
 		
 	}
 	
@@ -681,15 +978,16 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	//Pivot Position will be updates every transition
 	this.PivotPosition = PivotPosition;
 	this.ASCIIGRID = SubASCIIGrid;
+	this.AVAILABLE = true;
 	this.AllPivotPositions = this.SetAllPositions();
-	
+	this.Delay=Delay;
 	//Public function callable from object Sprite
 	//Translation Function from here to there
 	//ex if translate from [0,0] to [10,20],
 	//You will need to ComputeDifference(P1,P2)
 	//Then, with this info, loop through all sprite pixels
 	//
-	this.Translate = function(P2){
+	this.Translate = function(P2,R,C){
 		if(!P2)
 			{
 			return;
@@ -707,7 +1005,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		//and then calls TranslateAll
 		//starts at pivot
 		
-		this.TranslateAll(Difference);
+		this.TranslateAll(Difference,true,false);
 	}
 	
 	console.log("Starting Position: "+this.PivotPosition);
@@ -745,9 +1043,9 @@ CreateGrid(Height,Width,1);
 var Row = document.createElement("table");
 Row.className="EnterRow";
 var EnterCoordinates = InputPrompt2(
-		Text("Enter Coordinates y,x"));
-var TR1 = document.createElement("tr");
-TR1.appendChild(TableD(EnterCoordinates[0]));
+		Text("Enter Coordinates From: y,x"));
+var TR1 = TableR(EnterCoordinates[0]);
+
 Row.appendChild(TR1);
 
 var EnterSprite = InputPrompt2(
@@ -757,6 +1055,20 @@ TR1.appendChild(TableD(EnterSprite[0]));
 Row.appendChild(TR1);
 
 document.body.appendChild(Row);
+
+//var Row2 = document.createElement("table");
+//Row2.className="EnterRow";
+
+var EnterAnimationCoordinates = InputPrompt2(
+		Text("Enter Coordinates To: y,x"));
+
+var TR2 = document.createElement("tr");
+TR2.appendChild(TableD(EnterAnimationCoordinates[0]));
+Row.appendChild(TR2);
+
+//document.body.appendChild(Row);
+
+
 EnterCoordinates[1].addEventListener("input",function(){
 	var S = this.value.split(",");
 	
@@ -764,14 +1076,16 @@ EnterCoordinates[1].addEventListener("input",function(){
 	
 	if(ValidCoords(S)==true){
 		if(Sprite1){
-			Sprite1.Translate(S);
+			Sprite1.Translate(S,true,false);
 		}
 		ForceEvent(document.getElementsByTagName("textarea")[1],"input");
 	}
 	
 });
 
-EnterSprite[1].style.height="300px";
+
+//EnterSprite[0].style.height="150px";
+EnterSprite[1].style.height="150px";
 EnterSprite[1].style.fontSize="1.5vw";
 
 EnterSprite[1].addEventListener("input",function(){
