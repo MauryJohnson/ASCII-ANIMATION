@@ -591,8 +591,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					console.log("PARAMS:"+Params);
 					var Difference = Params[0];
 					var SubDifference = 
-						(Difference[IDX]>=0?
-						[1,0]:[-1,0]);
+						(Difference[IDX]==0?[0,0]:(Difference[IDX]>0?
+						[1,0]:[-1,0]));
 					return SubDifference;
 				}
 				,
@@ -616,7 +616,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					var This = Params[Params.length-3];
 					
 					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>=Difference[IDX]){
+						if(SubDifference[IDX]>Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -625,8 +625,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 						else
 							return false;
 					}
-					else if(SubDifference[IDX]>0){
-						if(SubDifference[IDX]<=Difference[IDX]){
+					else if(SubDifference[IDX]>=0){
+						if(SubDifference[IDX]<Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -635,8 +635,6 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 						else
 							return false;
 					}
-					else
-						return false;
 				}
 				
 				,
@@ -671,23 +669,23 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				
 					var Difference = Params[0];
 					var SubDifference = 
-						(Difference[IDX]>=0?
-						[0,1]:[0,-1]);
+						(Difference[IDX]==0?[0,0]:(Difference[IDX]>0?
+						[1,0]:[-1,0]));
 					return SubDifference;
 				}
 				,
-				[Difference]
+				[Difference,this]
 				,
 				//Logic function takes diff and subdiff
 				//Subtract diff by subdiff
 				function(Params){
 					var IDX = 1;
 				
-					var SubDifference = [Params[Params.length-3],
-						Params[Params.length-2]
+					var SubDifference = [Params[Params.length-2],
+						Params[Params.length-1]
 						];
 					
-					SubDifference[IDX] *= (parseInt(Params[0]/parseInt(Params[1])));
+					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
 					
 					//console.log("SD:"+SubDifference);
 					var Difference = [Params[Params.length-5],
@@ -696,7 +694,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					var This = Params[Params.length-3];
 					
 					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>=Difference[IDX]){
+						if(SubDifference[IDX]>Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -707,8 +705,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 						else
 							return false;
 					}
-					else if(SubDifference[IDX]>0){
-						if(SubDifference[IDX]<=Difference[IDX]){
+					else if(SubDifference[IDX]>=0){
+						if(SubDifference[IDX]<Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -716,8 +714,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 							
 							return true;
 						}
-						else
-							return false;
+						
 					}
 				}
 				
@@ -1012,7 +1009,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	console.log("SUB ASCII GRID: ");
 	PrettyPrintASCIIGrid(this.ASCIIGRID)
 	    
-	//this.Translate(this.PivotPosition);
+	this.Translate(this.PivotPosition,false,false);
 	
 	};
 </script>
