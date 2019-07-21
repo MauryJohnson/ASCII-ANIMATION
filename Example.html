@@ -407,17 +407,11 @@ function CreateGrid(Height,Width,Precision){
 	
 	//E.parentNode.removeChild(E);
 	
+	if(Parent){
 	Parent.innerHTML = "";
 	
-	//while(Parent.childNodes.length!=0){
-		
-	//}
-	
-	//var T = document.createElement("input");
-	//T.innerHTML = V;
-	
 	Parent.appendChild(Text(V));
-	
+	}
 	//while(Parent.childNodes.length==0){
 		
 	//}
@@ -486,6 +480,25 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		}
 	}
 	
+	function NotOverwriteNext(PrevPosition,NextPositions){
+		
+		for(var i=0; i<NextPositions.length;i+=1){
+			var NextPosition = NextPositions[i][1].split(",");
+			
+			console.log(PrevPosition+"=="+NextPosition+" ??");
+			
+			if(parseInt(NextPosition[0])==
+				parseInt(PrevPosition[0]) &&
+					parseInt(NextPosition[1])==
+						parseInt(PrevPosition[1])){
+				console.log("CANNOT OVERWRITE:"+NextPosition);
+				return false;	
+			}
+		}
+		console.log("CAN OVERWRITE:"+PrevPosition);
+		return true;
+	}
+	
 	function GetASCIIGridLengths(){
 		var AG = document.getElementsByClassName("Center")[0]
 		var AR = document.getElementsByClassName("Row")[0];
@@ -522,27 +535,25 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	this.SetAllPositions = function (){
 		
 		var Offset = SetOffset(this.PivotPosition,ASCIIGRID);
-		
-		var R = 0;
 	
 		var Positions = [];
 		
 		var AGLengths = GetASCIIGridLengths();
 		
-		for(var i=parseInt(this.PivotPosition[0])+(Offset[0]);
+		for(var i=parseInt(this.PivotPosition[0])+(Offset[0]),
+			R = 0;
 		R<this.ASCIIGRID.length
 		&& i<AGLengths[0]+Offset[0];i+=1,R+=1){
 			
-			var C = 0;
-			
-			for(var j=parseInt(this.PivotPosition[1])+Offset[1]; 
+			for(var j=parseInt(this.PivotPosition[1])+Offset[1],
+				C=0; 
 			C<this.ASCIIGRID[R].length && 
 			j<AGLengths[1]+Offset[1];j+=1,C+=1
 			){
 				
-				var FullKey = R+","+C;
-				var RelativeKey = i+","+j;
-				console.log("RelativeKey:"+RelativeKey);
+				var FullKey = i+","+j;
+				var RelativeKey =  R+","+C;
+				//console.log("RelativeKey:"+RelativeKey);
 				var E = document.getElementById(FullKey);
 				Positions.push([E,FullKey,RelativeKey]);
 				
@@ -563,6 +574,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	//Then translate all other positions based off of Difference
 	//neighbors
 	this.TranslateAll = function (Difference){
+		
+		ClearTable();
 		
 		console.log("TRANSLATE ALL BY DIFFERENCE:"+Difference);
 		
@@ -621,8 +634,6 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			
 			var Relative = NextPositions[i][2].split(",");
 			
-			UpdateValue(ParentPrev,Prev,EmptySpace);
-			
 			var I2 = parseInt(Relative[0]);
 			var J2 = parseInt(Relative[1]);
 			
@@ -637,9 +648,22 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				[J2]	
 				);
 			
+			//Check if not overwriting already written
+			if(Prev)
+				if(NotOverwriteNext(ParentPrev.id.split(","),NextPositions))
+					UpdateValue(ParentPrev,Prev,EmptySpace);
+			
+			
 		}
 		
 		this.AllPivotPositions = this.SetAllPositions();
+		
+		var FP = this.AllPivotPositions[0][1].split(",");
+	
+		this.PivotPosition = [parseInt(FP[0]),parseInt(FP[1])];
+		
+		
+		//this.PivotPosition
 		
 	}
 	
