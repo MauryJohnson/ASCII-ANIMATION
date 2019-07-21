@@ -104,6 +104,19 @@ function TableR(E,V){
 	return tr;
 }
 
+function SelectionPrompt(Name,Options){
+	var Select = document.createElement("select");
+	Select.id=Name;
+	var OptGroup = document.createElement("optgroup");
+	Select.appendChild(OptGroup);
+	for(var i=0; i<Options.length;i+=1){
+		var Option = document.createElement("option");
+		Option.innerHTML = Options[i];
+		OptGroup.appendChild(Option);
+	}
+	return [Select,OptGroup];
+}
+	
 function InputPrompt2(Text){
 	
 	var PI = document.createElement("div");
@@ -489,6 +502,10 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		}
 	}
 	
+	function Heuristic(P1,P2){
+		
+	}
+	
 	function NotOverwriteNext(PrevPosition,NextPositions){
 		
 		for(var i=0; i<NextPositions.length;i+=1){
@@ -580,7 +597,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		if(this.AVAILABLE==true){
 		this.AVAILABLE==false;
 		//Ignore Difference of column
-		Difference[1] = 0;
+		//Difference[1] = 0;
 	   
 		CreateAsyncFunctions([
 			[
@@ -604,19 +621,26 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					var IDX = 0;
 					console.log("PARAMS2:"+Params);
 					var SubDifference = [Params[Params.length-2],
-						Params[Params.length-1]
-						];
+						Params[Params.length-1]];
 					
 					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
 					
-					//console.log("SD:"+SubDifference);
-					var Difference = [Params[Params.length-5],
-						Params[Params.length-4]];
+					//console.log("SUB DIFF:"+SubDifference);
 					
+					//console.log("SD:"+SubDifference);
+					var Difference = Params[Params.length-4];
+					
+					//MAY BE A CONDITIONAL HERE
+					if(document.getElementById("Select Movement Type").
+							value.toLowerCase()=="column->row")
+							SubDifference[1] = Difference[1];
+					
+					
+					console.log("SUB DIFF:"+SubDifference);
 					var This = Params[Params.length-3];
 					
 					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>Difference[IDX]){
+						if(SubDifference[IDX]>=Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
@@ -632,15 +656,15 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 							
 							return true;
 						}
-						else
-							return false;
+						//else
+							//return false;
 					}
 				}
 				
 				,
 				
 				//This should be MAX time it will take!
-				this.Delay*Difference[0],
+				this.Delay*(Difference[0]<=0? Difference[0]*-1:Difference[0]),
 				
 				this.Delay,
 				
@@ -658,7 +682,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	this.TranslateByColumn = function(Difference,Callback,This){
 		 
 		//Ignore Difference of column
-		Difference[1] = 0;
+		//Difference[0] = 0;
 	   
 		CreateAsyncFunctions([
 			[
@@ -666,11 +690,12 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				//Then return
 				function(Params){
 					var IDX = 1;	
-				
+
+				    console.log("PARAMS:"+Params);
 					var Difference = Params[0];
 					var SubDifference = 
 						(Difference[IDX]==0?[0,0]:(Difference[IDX]>0?
-						[1,0]:[-1,0]));
+						[0,1]:[0,-1]));
 					return SubDifference;
 				}
 				,
@@ -680,7 +705,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				//Subtract diff by subdiff
 				function(Params){
 					var IDX = 1;
-				
+				    console.log("PARAMS2:"+Params);
 					var SubDifference = [Params[Params.length-2],
 						Params[Params.length-1]
 						];
@@ -688,17 +713,29 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
 					
 					//console.log("SD:"+SubDifference);
-					var Difference = [Params[Params.length-5],
-						Params[Params.length-4]];
+					var Difference = Params[Params.length-4];
+					
+					
+					//MAY BE A CONDITIONAL HERE
+					if(document.getElementById("Select Movement Type").
+							value.toLowerCase()=="row->column")
+							SubDifference[0] = Difference[0];
+					
+					//
+					
+					
+					console.log("DIFF:"+Difference);
+					
+					console.log("SUBDIFF:"+SubDifference);
 					
 					var This = Params[Params.length-3];
 					
 					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>Difference[IDX]){
+						if(SubDifference[IDX]>=Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
-							Difference[IDX]-=1;
+							//Difference[IDX]-=1;
 							
 							return true;
 						}
@@ -706,11 +743,11 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 							return false;
 					}
 					else if(SubDifference[IDX]>=0){
-						if(SubDifference[IDX]<Difference[IDX]){
+						if(SubDifference[IDX]<=Difference[IDX]){
 							
 							This.TranslateAll(SubDifference,false,false);
 							
-							Difference[IDX]+=1;
+							//Difference[IDX]+=1;
 							
 							return true;
 						}
@@ -720,7 +757,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				
 				,
 				
-				this.Delay*1000,
+				this.Delay*(Difference[1]<=0? Difference[1]*-1:Difference[1]),
 				
 				this.Delay,
 				
@@ -816,7 +853,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				this.Delay,
 				
 				function(){
-					console.log("FINISHED ANIMATION BY COLUMN FOR SPRITE");
+					console.log("FINISHED ANIMATION BY BOTH FOR SPRITE");
 					
 					Callback();
 				
@@ -851,25 +888,29 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		}
 		else if(ByRow==true){
 			//Translate ByRow, then Translate By Column
-			this.TranslateByRow(Difference,function(This){
+			var F = function(This){
 				
 				This.TranslateByColumn(Difference,function(){
 					
 				
-				},this);	
-				
-			},this);
+				},this);
+			}
+			this.TranslateByRow(Difference,	
+				F
+			,this);
 		}
 		else if(ByColumn==true){
 			//Translate ByColumn, then Translate By Row
-			this.TranslateByColumn(Difference,function(This){
+			var F = function(This){
 				
 				This.TranslateByRow(Difference,function(){
 					
 				
-				});	
-				
-			});
+				},this);	
+			}
+			this.TranslateByColumn(Difference,
+				F
+			,this);
 			
 		}
 		
@@ -1001,8 +1042,17 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		//which waits by the delay set
 		//and then calls TranslateAll
 		//starts at pivot
+		var R = false;
+		var C = false;
+		var S = document.getElementById("Select Movement Type");
+		if(S.value.toLowerCase()=="row->column"){
+			R = true;
+		}
+		else if(S.value.toLowerCase()=="column->row"){
+			C = true;
+		}
 		
-		this.TranslateAll(Difference,true,false);
+		this.TranslateAll(Difference,R,C);
 	}
 	
 	console.log("Starting Position: "+this.PivotPosition);
@@ -1061,7 +1111,14 @@ var EnterAnimationCoordinates = InputPrompt2(
 
 var TR2 = document.createElement("tr");
 TR2.appendChild(TableD(EnterAnimationCoordinates[0]));
+var SP = SelectionPrompt("Select Movement Type"
+		,["row->column","column->row"]);
+TR2.appendChild(SP[0]);
 Row.appendChild(TR2);
+//tionPrompt("",[]))
+
+//R
+//Row.appendChild()
 
 //document.body.appendChild(Row);
 
@@ -1072,14 +1129,24 @@ EnterCoordinates[1].addEventListener("input",function(){
 	//ClearTable();
 	
 	if(ValidCoords(S)==true){
-		if(Sprite1){
-			Sprite1.Translate(S,true,false);
+		if(!Sprite1)
+			ForceEvent(document.getElementsByTagName("textarea")[1]);
+		else{
+			Sprite1.PivotPosition = [parseInt(S[0]),parseInt(S[1])];
 		}
-		ForceEvent(document.getElementsByTagName("textarea")[1],"input");
+			
 	}
 	
 });
 
+EnterAnimationCoordinates[1].addEventListener("input",function(){
+	var S = this.value.split(",");
+	if(ValidCoords(S)==true){
+		if(Sprite1)
+			Sprite1.Translate(S,true,false);
+	}
+	
+});
 
 //EnterSprite[0].style.height="150px";
 EnterSprite[1].style.height="150px";
@@ -1106,7 +1173,7 @@ EnterSprite[1].addEventListener("input",function(){
 			Sprite1 = new Sprite(Coords,Array,500);
 			//Sprite1.Translate([);
 			//ClearTable();
-			Sprite1.Translate(Sprite1.PivotPosition);
+			//Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else if(ArraysNotEqual(Sprite1.ASCIIGRID,Sprite2.ASCIIGRID)==true){
 			//alert("New Sprite");
@@ -1115,7 +1182,7 @@ EnterSprite[1].addEventListener("input",function(){
 			
 			Sprite1=Sprite2;
 			//ClearTable();
-			Sprite1.Translate(Sprite1.PivotPosition);
+			//Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else{
 			//ClearTable();
