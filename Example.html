@@ -1156,6 +1156,7 @@ EnterCoordinates[1].addEventListener("input",function(){
 			ForceEvent(document.getElementsByTagName("textarea")[1]);
 		else{
 			Sprite1.PivotPosition = [parseInt(S[0]),parseInt(S[1])];
+			Sprite1.Translate(Sprite1.PivotPosition,false,false);
 		}
 			
 	}
