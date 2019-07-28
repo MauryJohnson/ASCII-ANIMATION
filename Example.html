@@ -567,22 +567,22 @@ function NotOverwriteNextD(PrevPosition,NextPositions){
 		//Only need an offset if out of bounds in negative direction
 		var Offset = [0,0];
 		
-		/*
 		if(PivotPosition[0]<0){
-			Offset[0] = -PivotPosition[0];
+			Offset[0] = (ASCIIGRID.length) +
+			PivotPosition[0];
 		}
 		else if( PivotPosition[0]>=ASCIIGRID.length){
-			Offset[0] = -PivotPosition[0];
+			Offset[0] = (ASCIIGRID.length-1) -
+			PivotPosition[0];
 		}
 		if(PivotPosition[1]<0){
-			Offset[1] = 
-			-PivotPosition[1];
+			Offset[1] = (ASCIIGRID[0].length) +
+			PivotPosition[1];
 		}
 		else if(PivotPosition[1]>=ASCIIGRID[0].length){
-			Offset[1] = PivotPosition[1];
+			Offset[1] = (ASCIIGRID[0].length-1) -
+			PivotPosition[1];
 		}
-		
-		*/
 		
 		return [parseInt(Offset[0]),parseInt(Offset[1])];
 	}
@@ -610,8 +610,7 @@ function NotOverwriteNextD(PrevPosition,NextPositions){
 				
 				var FullKey = i+","+j;
 				var RelativeKey =  R+","+C;
-				console.log("RelativeKey:"+RelativeKey);
-				console.log("FullKey:"+FullKey);
+				//console.log("RelativeKey:"+RelativeKey);
 				var E = document.getElementById(FullKey);
 				Positions.push([E,FullKey,RelativeKey]);
 				
