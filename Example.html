@@ -580,7 +580,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	
 	//Use pivot position as reference
 	// [[E,Y,X],...,]
-	this.SetAllPositions = function (){
+	this.SetAllPositions = function (Difference){
 		
 		var Offset = SetOffset(this.PivotPosition,ASCIIGRID);
 	
@@ -588,15 +588,18 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		
 		var AGLengths = GetASCIIGridLengths();
 		
-		for(var i=parseInt(this.PivotPosition[0])+(Offset[0]),
+		var DY = Difference!=null? Difference[0]:0;
+		var DX = Difference!=null? Difference[1]:0;
+		
+		for(var i=parseInt(this.PivotPosition[0])+DY+(Offset[0]),
 			R = 0;
 		R<this.ASCIIGRID.length
-		&& i<AGLengths[0]+Offset[0];i+=1,R+=1){
+		&& i<AGLengths[0]+DY+Offset[0];i+=1,R+=1){
 			
-			for(var j=parseInt(this.PivotPosition[1])+Offset[1],
+			for(var j=parseInt(this.PivotPosition[1])+DX+Offset[1],
 				C=0; 
 			C<this.ASCIIGRID[R].length && 
-			j<AGLengths[1]+Offset[1];j+=1,C+=1
+			j<AGLengths[1]+DX+Offset[1];j+=1,C+=1
 			){
 				
 				var FullKey = i+","+j;
