@@ -425,7 +425,6 @@ function CreateGrid(Height,Width,Precision){
 }
  
  
- 
  function UpdateValue(Parent,E,V){
 	//var Parent = E.parentElement;
 	
@@ -450,7 +449,7 @@ function CreateGrid(Height,Width,Precision){
 		var Table = document.getElementsByClassName("Center")[0];
 		var Rows = Table.childNodes;
 		
-		do{
+		//do{
 		
 		for(var i=0; i<Rows.length;i+=1)
 			{
@@ -463,7 +462,7 @@ function CreateGrid(Height,Width,Precision){
 			
 			}
 		
-		}while(NotClear());
+		//}while(NotClear());
 	}
  
 //But instead of storing elements, this stores ASCII values
@@ -529,6 +528,32 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		}
 		console.log("CAN OVERWRITE:"+PrevPosition);
 		return true;
+	}
+	
+function NotOverwriteNextD(PrevPosition,NextPositions){
+		
+	 	var NextPosition = null;
+		
+			NextPosition = NextPositions[PrevPosition];
+			
+			if(NextPosition){
+			NextPosition = NextPosition[1].split(",");
+			
+			PrevPosition=PrevPosition.split(",");
+			
+			console.log(PrevPosition+"=="+NextPosition+" ??");
+			
+			if(parseInt(NextPosition[0])==
+				parseInt(PrevPosition[0]) &&
+					parseInt(NextPosition[1])==
+						parseInt(PrevPosition[1])){
+				console.log("CANNOT OVERWRITE:"+NextPosition);
+				return true;	
+			}
+			
+			}
+		console.log("CAN OVERWRITE:"+PrevPosition);
+		return false;
 	}
 	
 	function GetASCIIGridLengths(){
@@ -601,8 +626,8 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	
 	this.TranslateByRow = function(Difference,Callback,This){
 		 
-		if(this.AVAILABLE==true){
-		this.AVAILABLE==false;
+		//if(this.AVAILABLE==true){
+		this.AVAILABLE=false;
 		//Ignore Difference of column
 		//Difference[1] = 0;
 	   
@@ -617,10 +642,12 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					var SubDifference = 
 						(Difference[IDX]==0?[0,0]:(Difference[IDX]>0?
 						[1,0]:[-1,0]));
+					//var Counter = Params[Params.length-1];
 					return SubDifference;
 				}
 				,
-				[Difference,this]
+				[Difference,this,
+					[0,0]]
 				,
 				//Logic function takes diff and subdiff
 				//Subtract diff by subdiff
@@ -628,43 +655,30 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					var IDX = 0;
 					console.log("PARAMS2:"+Params);
 					var SubDifference = [Params[Params.length-2],
-						Params[Params.length-1]];
+						/*Params[Params.length-1]*/0];
 					
-					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
+					var Diff = Params[3]
 					
-					//console.log("SUB DIFF:"+SubDifference);
-					
-					//console.log("SD:"+SubDifference);
-					var Difference = Params[Params.length-4];
-					
-					//MAY BE A CONDITIONAL HERE
-					if(document.getElementById("Select Movement Type").
-							value.toLowerCase()=="column->row")
-							SubDifference[1] = Difference[1];
-					
+					console.log("DIFF:"+Diff);
 					
 					console.log("SUB DIFF:"+SubDifference);
-					var This = Params[Params.length-3];
+					var This = Params[Params.length-4];
 					
-					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							return true;
-						}
-						//else
-							//return false;
+					var Counter = Params[Params.length-3];
+					console.log("COUNTER:"+Counter);
+					
+					if((Counter[IDX]<Diff[IDX] && Counter[IDX]>=0)
+						|| (Counter[IDX]>Diff[IDX] && Counter[IDX]<=0)	)
+					{
+					This.TranslateAll(SubDifference,false,false);
+					
+					Counter[IDX]+=SubDifference[IDX];
+					
+					return true;
 					}
-					else if(SubDifference[IDX]>=0){
-						if(SubDifference[IDX]<=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							return true;
-						}
-						//else
-							//return false;
+					else{
+						console.log("FINAL PIVOT POSE ROW:"+This.PivotPosition);
+						return false;
 					}
 				}
 				
@@ -672,7 +686,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				
 				//This should be MAX time it will take!
 				this.Delay*(Difference[0]<=0? Difference[0]*-1:Difference[0])
-				+(Difference[0]<=0? Difference[0]*-1:Difference[0])
+				//+(Difference[0]<=0? Difference[0]*-1:Difference[0])
 				,
 				
 				this.Delay,
@@ -680,19 +694,19 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				function(){
 					console.log("FINISHED ANIMATION BY ROW FOR SPRITE");
 					This.AVAILABLE=true;
+					
 					Callback(This);
-				}
-				
-			]
-		]);
-		}
+					
+					}
+				]
+			]);
+		//}
 	};
 	
 	this.TranslateByColumn = function(Difference,Callback,This){
 		 
-		//Ignore Difference of column
-		//Difference[0] = 0;
-	   
+		//if(this.AVAILABLE==true){
+	   	this.AVAILABLE=false;
 		CreateAsyncFunctions([
 			[
 				//This function WILL increment position given by 1
@@ -708,66 +722,46 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					return SubDifference;
 				}
 				,
-				[Difference,this]
+				[Difference,this,
+					[0,0]]
 				,
 				//Logic function takes diff and subdiff
 				//Subtract diff by subdiff
 				function(Params){
 					var IDX = 1;
-				    console.log("PARAMS2:"+Params);
-					var SubDifference = [Params[Params.length-2],
-						Params[Params.length-1]
-						];
-					
-					SubDifference[IDX] *= (parseInt(Params[1])/parseInt(Params[2]));
-					
-					//console.log("SD:"+SubDifference);
-					var Difference = Params[Params.length-4];
-					
-					
-					//MAY BE A CONDITIONAL HERE
-					if(document.getElementById("Select Movement Type").
-							value.toLowerCase()=="row->column")
-							SubDifference[0] = Difference[0];
-					
-					//
-					
-					
-					console.log("DIFF:"+Difference);
-					
-					console.log("SUBDIFF:"+SubDifference);
-					
-					var This = Params[Params.length-3];
-					
-					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							//Difference[IDX]-=1;
-							
-							return true;
-						}
-						//else
-							//return false;
-					}
-					else if(SubDifference[IDX]>=0){
-						if(SubDifference[IDX]<=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							//Difference[IDX]+=1;
-							
-							return true;
-						}
+					console.log("PARAMS2:"+Params);
+					var SubDifference = [0,
+						Params[Params.length-1]];
+				
+					var Diff = Params[3];
 						
+					console.log("SUB DIFF:"+SubDifference);
+					var This = Params[Params.length-4];
+					
+					var Counter = Params[Params.length-3];
+					console.log("COUNTER:"+Counter);
+					
+					if((Counter[IDX]<=Diff[IDX] && Counter[IDX]>=0)
+						|| (Counter[IDX]>=Diff[IDX] && Counter[IDX]<=0)	
+						)
+					{
+					This.TranslateAll(SubDifference,false,false);
+					
+					Counter[IDX]+=SubDifference[IDX];
+					//Counter[1]+=SubDifference[1];
+					
+					return true;
+					}
+					else{
+						Counter[IDX]-=SubDifference[IDX];
+						return false;
 					}
 				}
 				
 				,
 				
 				this.Delay*(Difference[1]<=0? Difference[1]*-1:Difference[1])
-				+ (Difference[1]<=0? Difference[1]*-1:Difference[1])
+				//+ (Difference[1]<=0? Difference[1]*-1:Difference[1])
 				
 				,
 				
@@ -776,12 +770,13 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				function(){
 					console.log("FINISHED ANIMATION BY COLUMN FOR SPRITE");
 					
+					this.AVAILABLE=true;
 					Callback(This);
 				
-				}
-				
-			]
-		]);
+					}
+				]
+			]);
+		//}
 	};
 	
 	this.TranslateByBoth = function(Difference,Callback){
@@ -835,27 +830,9 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 					
 					var This = Params[Params.length-3];
 					
-					if(SubDifference[IDX]<0){
-						if(SubDifference[IDX]>=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							
-							return true;
-						}
-						else
-							return false;
-					}
-					else if(SubDifference[IDX]>0){
-						if(SubDifference[IDX]<=Difference[IDX]){
-							
-							This.TranslateAll(SubDifference,false,false);
-							
-							return true;
-						}
-						else
-							return false;
-					}
+					This.TranslateAll(SubDifference,false,false);
+					
+					return true;
 				}
 				
 				,
@@ -887,7 +864,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 	//If both are true, go directly to position with waits.
 	this.TranslateAll = function (Difference,ByRow,ByColumn){
 		
-		ClearTable();
+		//ClearTable();
 		
 		console.log("TRANSLATE ALL BY DIFFERENCE:"+Difference);
 		
@@ -902,10 +879,13 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			//Translate ByRow, then Translate By Column
 			var F = function(This){
 				
+				
 				This.TranslateByColumn(Difference,function(){
 					
 				
-				},this);
+				});
+				
+				
 			}
 			this.TranslateByRow(Difference,	
 				F
@@ -915,10 +895,12 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			//Translate ByColumn, then Translate By Row
 			var F = function(This){
 				
+				//if(This.AVAILABLE==true)
+				//setTimeout(
 				This.TranslateByRow(Difference,function(){
 					
 				
-				},this);	
+				},this)//,1);
 			}
 			this.TranslateByColumn(Difference,
 				F
@@ -934,7 +916,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 		console.log("OFFSET:"+Offset);
 		
 		//Create List of next positions
-		var NextPositions = [];
+		var NextPositions = {};
 		
 		for(var i=0; 
 		i<this.AllPivotPositions.length;i+=1){
@@ -950,21 +932,30 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			var I2 = parseInt(S2[0]);
 			var J2 = parseInt(S2[1]);
 			
-			NextPositions.push([E,I+","+J,I2+","+J2]);
+			NextPositions[I2+","+J2] = ([E,I+","+J,I2+","+J2]);
+			NextPositions[i] = ([E,I+","+J,I2+","+J2]);
 		}
 		
-		console.log("NEXT POSITIONS:"+NextPositions);
+		console.log("NEXT POSITIONS:"+JSON.stringify(NextPositions));
 		
-		for(var i=0; i<NextPositions.length;i+=1){
+		for(var i=0; 
+		i<this.AllPivotPositions.length;i+=1){
 			var ParentPrev;
+			var ParentPrevArray;
 			var Prev;
 			
 			//Prev Text Element
 			var ParentPrev = NextPositions[i][0];
-			if(ParentPrev)
+			if(ParentPrev){
+				ParentPrevArray = ParentPrev.id.split(",");
+				ParentPrevArray[0] = parseInt(ParentPrevArray[0]);
+				ParentPrevArray[1] = parseInt(ParentPrevArray[1]);
 				Prev = ParentPrev.childNodes[0];
 			
-			console.log("PARENT PREV:"+ParentPrev+" PREV:"+Prev);			
+				console.log("PARENT PREV:"+ParentPrev.id+" PREV:"+Prev);			
+				
+			}
+			
 			//Next
 			var S = NextPositions[i][1].split(",");
 			var I = parseInt(S[0]);
@@ -972,12 +963,10 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			var ParentNext;
 			var Next;
 			
-			
 			var ParentNext = document.getElementById(I+","+J);
 			if(ParentNext)
 				Next = ParentNext.childNodes[0];
 			
-		
 			console.log("PARENT:"+ParentNext+" NEXT:"+Next);
 			
 			var Relative = NextPositions[i][2].split(",");
@@ -989,6 +978,7 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 			
 			console.log("ACCESS:"+I2+","+J2+" VAL:"+Value);
 			
+			
 			if(Next)
 				UpdateValue(ParentNext,Next,
 				this.ASCIIGRID
@@ -996,20 +986,45 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay) {
 				[J2]	
 				);
 			
-			//Check if not overwriting already written
+			// IF have a previous item
+			// And this is NOT current pivit position
+			//And not overwriting a next item
 			if(Prev)
-				if(NotOverwriteNext(ParentPrev.id.split(","),NextPositions))
-					UpdateValue(ParentPrev,Prev,EmptySpace);
+					{
+					if(!NotOverwriteNextD(ParentPrev.id,NextPositions))
+						UpdateValue(ParentPrev,Prev,EmptySpace);
+					}
 			
+			//Check if not overwriting already written
 			
 		}
 		
 		this.AllPivotPositions = this.SetAllPositions();
 		
-		var FP = this.AllPivotPositions[0][1].split(",");
-	
-		this.PivotPosition = [parseInt(FP[0]),parseInt(FP[1])];
+		var FP = null;
 		
+		//if(this.AllPivotPositions)
+			//if(this.AllPivotPositions.length>0)
+				//var FP = this.AllPivotPositions[0][1].split(",");
+	
+		//if(FP)
+			
+			if(NextPositions){
+			var S = NextPositions[0][1].split(",");
+			
+			var Y = parseInt(this.PivotPosition[0]) + 
+			Difference[0];
+			
+			var X=  parseInt(this.PivotPosition[1]) + 
+			Difference[1];
+			
+			console.log("NEXT Y:"+Y+" NEXT X:"+X);
+			
+			this.PivotPosition[0]= Y;
+			this.PivotPosition[1]= X;
+				// [parseInt(FP[0]),parseInt(FP[1])];
+			console.log("NEW PIVOT:"+this.PivotPosition);
+			}
 		}
 		
 	}
