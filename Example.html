@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>ASCII ANIMATION XD</title>
+<title>SPRITE/ASCII ANIMATION</title>
 <style>
 /*
 Simple div with a border
@@ -89,7 +89,12 @@ function Text(Value){
 function Div(Value){
 	var Text = document.createElement("div");
 	Text.className="Div";
-	Text.innerHTML = Value;
+	if(Value.src!=null){
+		console.log("APPEND IMG:"+Value.src);
+		Text.appendChild(Value);
+	}
+	else
+		Text.innerHTML = Value;
 	return Text;
 }
 
@@ -461,7 +466,7 @@ function CreateGrid(Height,Width,Precision){
 	if(Parent){
 	Parent.innerHTML = "";
 	
-	Parent.appendChild(Text(V));
+	Parent.appendChild(Div(V));
 	}
 	//while(Parent.childNodes.length==0){
 		
@@ -503,26 +508,59 @@ function CreateGrid(Height,Width,Precision){
 //Delay is time it will take to transition from point to point
 //This is in milliseconds!
 //A collection of transitions is what comprises the animation
-function Sprite(PivotPosition,SubASCIIGrid,Delay,RotationSpeed) {
-	if(!PivotPosition){
+function Sprite(Options/*PivotPosition,SubASCIIGrid,Delay,RotationSpeed*/) {
+	if(!Options["PivotPosition"]){
 		console.log("SPRITE--No Pivot Position");
 		return;
 	}
-	if(PivotPosition.length!=2){
+	if(Options["PivotPosition"].length!=2){
 		console.log("SPRITE--Invalid Pivot Position");
 		return;
 	}
-	if(!SubASCIIGrid){
+	if(!Options["SubASCIIGrid"]){
 		console.log("SPRITE--No SUB ASCII GRID");
 		return;
 	}
-	if(!Delay || Delay<0){
+	if(!Options["Delay"] || Options["Delay"]<0){
 		console.log("Invalid Delay");
 		return;
 	}
 	
+	this.ParseASCIIGrid = function(Grid){
+		
+		for(var i=0; i<Grid.length;i+=1){
+			
+			for(var j=0; j<Grid[i].length;j+=1){
+				
+				if(Grid[i][j].indexOf("img=")!=-1){
+					
+					var s = Grid[i][j].split('=');
+					//var s2 = s[1].split('"');
+					var Source = s[1].trim();
+					
+					console.log("Load IMG From:"+Source);
+					
+					var IMG = document.createElement("img");
+					IMG.src = Source;
+					
+					Grid[i][j] = IMG;
+					
+				}
+				else{
+					
+					//Anything else?
+					
+				}
+				
+			}
+			
+		}
+		
+		return Grid;
+	}
+	
 	//Private Function for pretty print when initializing
-	function PrettyPrintASCIIGrid(AG){
+	this.PrettyPrintASCIIGrid   = function(AG){
 		for(var i=0; i<AG.length;i+=1){
 			//for(var j=0; j<AG[i].length;j+=1){
 				console.log(AG[i]);
@@ -533,25 +571,6 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay,RotationSpeed) {
 	
 	function Heuristic(P1,P2){
 		
-	}
-	
-	function NotOverwriteNext(PrevPosition,NextPositions){
-		
-		for(var i=0; i<NextPositions.length;i+=1){
-			var NextPosition = NextPositions[i][1].split(",");
-			
-			console.log(PrevPosition+"=="+NextPosition+" ??");
-			
-			if(parseInt(NextPosition[0])==
-				parseInt(PrevPosition[0]) &&
-					parseInt(NextPosition[1])==
-						parseInt(PrevPosition[1])){
-				console.log("CANNOT OVERWRITE:"+NextPosition);
-				return false;	
-			}
-		}
-		console.log("CAN OVERWRITE:"+PrevPosition);
-		return true;
 	}
 	
 this.NotOverwriteNextD = function (PrevPosition,NextPositions){
@@ -626,7 +645,6 @@ this.NotCollide = function (TheirPosition,NextPositions){
 	return true;
 }
 
-	
 	function GetASCIIGridLengths(){
 		var AG = document.getElementsByClassName("Center")[0]
 		var AR = document.getElementsByClassName("Row")[0];
@@ -764,7 +782,7 @@ this.NotCollide = function (TheirPosition,NextPositions){
 		
 		console.log("Before Flip:");
 		
-		PrettyPrintASCIIGrid(Arr);
+		this.PrettyPrintASCIIGrid(Arr);
 		
 		//var Arr2;
 		
@@ -809,7 +827,7 @@ this.NotCollide = function (TheirPosition,NextPositions){
 		
 	console.log("After Flip:");
 		
-		PrettyPrintASCIIGrid(Arr);
+		this.PrettyPrintASCIIGrid(Arr);
 		
 		return Arr;
 		
@@ -830,9 +848,10 @@ this.NotCollide = function (TheirPosition,NextPositions){
 			
 			var Visited = {};
 			
+			var u = 0;
 			
 			for(var u=0;u<Lengths.length;u+=1){
-				for(var j=0;j<Lengths[u];j+=1){
+				for(var j=u;j<Lengths[u];j+=1){
 					var AR = [];
 					for(var i=this.ASCIIGRID.length-1; i>=0;i-=1){
 						if(this.ASCIIGRID[i][j]){
@@ -849,20 +868,20 @@ this.NotCollide = function (TheirPosition,NextPositions){
 						AG.push(AR);
 						
 					}
-					//break;
-				}
-				
+				}	
 			}
 			
+
+			AG = this.FlipGrid(AG,true,true);
 			
 			}
 		else
 		{	
 			
-			var Visited = {};
-			
+			var Visited = {};	
+		
 			for(var u=0;u<Lengths.length;u+=1){
-				for(var j=0;j<Lengths[u];j+=1){
+				for(var j=u;j<Lengths[u];j+=1){
 					var AR = [];
 					for(var i=this.ASCIIGRID.length-1; i>=0;i-=1){
 						if(this.ASCIIGRID[i][j]){
@@ -875,20 +894,18 @@ this.NotCollide = function (TheirPosition,NextPositions){
 							AR.push(EmptySpace);
 						}
 					}
-					if(AR.length>0)
+					if(AR.length>0){
 						AG.push(AR);
-					//break;
-				}
-				
+						
+					}
+				}	
 			}
 			
-
-			AG = this.FlipGrid(AG,true,true);
 		}
 		
 		console.log("Old ASCII GRID:"
 				);
-		PrettyPrintASCIIGrid(this.ASCIIGRID);
+		this.PrettyPrintASCIIGrid(this.ASCIIGRID);
 		
 		this.ASCIIGRID = AG;
 		
@@ -897,7 +914,7 @@ this.NotCollide = function (TheirPosition,NextPositions){
 		this.SetAllPositions();	
 		
 		console.log("NEW ASCII GRID:");
-		PrettyPrintASCIIGrid(this.ASCIIGRID)
+		this.PrettyPrintASCIIGrid(this.ASCIIGRID)
 		
 		
 	}
@@ -924,56 +941,7 @@ this.NotCollide = function (TheirPosition,NextPositions){
 			for(var i=0; i<Rotations;i+=1)
 				this.Transpose(false);
 		}
-		/*
-	
-		D = this.SoftDegree(D);
-		var Radians = (Math.PI*D)/180;
-		console.log("Degree:"+D+" To Radians:"+Radians);
-		var X = Math.cos(Radians);
-		var Y = Math.sin(Radians);
 		
-		//Center to keep track of radius for each item
-		var Center = this.CenterOfMass();
-		
-		for(var i in this.AllPivotPositions){
-			
-			
-			var S = this.AllPivotPositions[i][1];
-			var S2 = this.AllPivotPositions[i][2];
-			var P = S.split(",");
-			var P2 = S2.split(",");
-			
-			P[0]=parseInt(P[0]);P[1]=parseInt(P[1]);
-			P2[0] = parseInt(P2[0]);P2[1]=parseInt(P2[1]);
-			
-			var EOld = document.getElementById(S);
-			var R = this.Distance(P,Center);
-			
-			console.log("Dist:"+R);
-			
-			console.log("FROM:"+P);
-			
-			P[0]-=Math.round(R*Y);
-			P[1]+=Math.round(R*X);
-			
-			console.log("TO:"+P);
-			
-			this.AllPivotPositions[i][1] = P.join(",");
-			
-			var ENew = document.getElementById(P.join(","));
-			
-			if(NotOverwriteNextD(EOld.id,this.AllPivotPositions))
-				UpdateValue(EOld,EOld.childNodes[0],
-					EmptySpace	
-					);
-			
-			UpdateValue(ENew,ENew.childNodes[0],
-					this.ASCIIGRID[P2[0]][P2[1]]	
-					);
-			
-			
-		}
-		*/
 	}
 this.TranslateByRow = function(Difference,Callback,This){
 		 
@@ -1493,7 +1461,6 @@ this.TranslateByRow = function(Difference,Callback,This){
 		
 	}
 	
-
 	this.MaxRowLength = function(G){
 		var R = 0;
 		for(var i=0; i<G.length;i+=1){
@@ -1513,7 +1480,7 @@ this.TranslateByRow = function(Difference,Callback,This){
 	
 	//Otherwise they are public	
 	//Pivot Position will be updates every transition
-	this.PivotPosition = PivotPosition;
+	this.PivotPosition = Options["PivotPosition"];
 	
 	//Add Padding to this object
 	//So this will allow it to do
@@ -1549,20 +1516,34 @@ this.TranslateByRow = function(Difference,Callback,This){
 	}
 	*/
 	
-	this.ASCIIGRID = SubASCIIGrid;
+	this.ASCIIGRID = this.ParseASCIIGrid(Options["SubASCIIGrid"]);
+	
 	this.AVAILABLE = true;
 	this.AllPivotPositions = this.SetAllPositions(this.PivotPosition);
-	this.Delay=Delay;
-	this.RotationSpeed=RotationSpeed;
+	
+	this.Delay=Options["Delay"];
+	this.RotationSpeed=Options["RotationSpeed"];
+	
 	this.CollisionDetection="Hide";
-	this.Name = "";
+	
+	if(!Options["Name"]){
+		this.Name="Sprite"+Counter;
+		Counter+=1;
+	}
+	else
+		this.Name=Options["Name"];
+	
+	
+	
+	SpriteList["Sprite"+Counter] = this;
+
 	//Public function callable from object Sprite
 	//Translation Function from here to there
 	//ex if translate from [0,0] to [10,20],
 	//You will need to ComputeDifference(P1,P2)
 	//Then, with this info, loop through all sprite pixels
 	//
-	this.Translate = function(P2,R,C){
+	this.Translate = function(P2){
 		if(!P2)
 			{
 			return;
@@ -1594,9 +1575,11 @@ this.TranslateByRow = function(Difference,Callback,This){
 	
 	console.log("Starting Position: "+this.PivotPosition);
 	console.log("SUB ASCII GRID: ");
-	PrettyPrintASCIIGrid(this.ASCIIGRID)
-	    
-	this.Translate(this.PivotPosition,false,false);
+	this.PrettyPrintASCIIGrid(this.ASCIIGRID)
+	  
+	this.Teleport(this.PivotPosition);
+	
+	//this.Translate(this.PivotPosition,false,false);
 	
 	};
 </script>
@@ -1633,7 +1616,7 @@ var TR1 = TableR(EnterCoordinates[0]);
 Row.appendChild(TR1);
 
 var EnterSprite = InputPrompt2(
-		Text("Enter 2D Sprite Array [['X',..,],..,[]]"));
+		Text("Enter 2D Sprite Array { [['X',..,],..,[]] , or: [[\"img=link.com\"],..,] }"));
 //var TR2 = document.createElement("tr");
 TR1.appendChild(TableD(EnterSprite[0]));
 Row.appendChild(TR1);
@@ -1782,7 +1765,7 @@ EnterAnimationCoordinates[1].addEventListener("input",function(){
 	var S = this.value.split(",");
 	if(ValidCoords(S)==true){
 		if(Sprite1)
-			Sprite1.Translate(S,true,false);
+			Sprite1.Translate(S);
 	}
 	
 });
@@ -1804,44 +1787,49 @@ EnterSprite[1].addEventListener("input",function(){
 		
 		var RS = document.getElementById("PRS").value;
 		
-		var Sprite2 = new Sprite(Coords,Array,500,RS);
+		var Sprite2 = new Sprite(
+				{
+					
+				"PivotPosition":Coords,
+					
+				"SubASCIIGrid":Array,
+				
+				"Delay":500,
+				
+				"RotationSpeed":RS
+					
+				});
 		
 		if(Sprite1==null){
 			//alert("New Sprite");
-			Sprite1 = new Sprite(Coords,Array,500,RS);
+			Sprite1 = new Sprite({
+					
+				"PivotPosition":Coords,
+					
+				"SubASCIIGrid":Array,
+				
+				"Delay":500,
+				
+				"RotationSpeed":RS
+					
+				});
 			
-			Sprite1.Name = "Sprite"+Counter;
-			
-			SpriteList["Sprite"+Counter] = Sprite2;
-			
-			Sprite2.Name = "Sprite"+Counter;
-			
-			//Sprite1.Translate([);
-			//ClearTable();
-			//Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else if(ArraysNotEqual(Sprite1.ASCIIGRID,Sprite2.ASCIIGRID)==true){
 			//alert("New Sprite");
 			
-			//delete Sprite1;
-			
-			Counter+=1;
-			
-			SpriteList["Sprite"+Counter] = Sprite2;
-			
-			Sprite2.Name = "Sprite"+Counter;
-			
 			document.getElementById("Select Sprite").
 			childNodes[0].appendChild(Option("Sprite"+Counter));
 			
-			//Sprite1=Sprite2;
-			//ClearTable();
-			//Sprite1.Translate(Sprite1.PivotPosition);
 		}
 		else{
 			//ClearTable();
 			console.log("NOT UNIQUE: "+Sprite1.ASCIIGRID+"=="+Sprite2.ASCIIGRID);
 		}
+	}
+	else{
+		alert("Enter From Coordinates First");
+		this.value="";
 	}
 	
 	//ForceEvent(document.getElementsByClassName[0],"input");
@@ -1857,16 +1845,26 @@ document.getElementById("5,5").innerHTML="a";
 
 //var 
 
-
+/*
 Sprite1 = new Sprite([0,0],[
 ["*","-","*","","*"],
 ["*","*","*","","*"],
 ["*","-","*","","*"]
 ],500);
+*/
 
-Sprite1.Name="Sprite"+Counter;
-
-SpriteList["Sprite1"] = Sprite1;
+Sprite1 = new Sprite({
+	
+	"PivotPosition":[0,0],
+		
+	"SubASCIIGrid":[[" img= "+
+	"https://cdn.discordapp.com/emojis/586691872978632714.png  "]],
+	
+	"Delay":500,
+	
+	"RotationSpeed":0
+		
+	});
 
 /*
 Sprite1 = new Sprite([0,0],[

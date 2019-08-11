@@ -6,6 +6,7 @@
 
 ## Usage
 1. Add a sprite by entering a value 2D array of strings. There must be a valid from coordinate entered.
+    a. Added option to add an image to sprite [["img=http://img.com"]]
 2. A valid coordinate is entered as: Row,Column
 3. Sprite selected can be moved to a different starting position by changint its from coordinate.
 4. Enter a to coordinate for a sprite selected and it will go from its position to the position specified
