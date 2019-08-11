@@ -23,6 +23,11 @@ font-family:Luminari, cursive;
 display:inline;
 }
 
+.Div{
+font-family:Luminari, cursive;
+display:inline;
+}
+
 .TextArea{
 width:80%;
 height:2.5vw;
@@ -80,6 +85,14 @@ function Text(Value){
 	Text.innerHTML = Value;
 	return Text;
 }
+
+function Div(Value){
+	var Text = document.createElement("div");
+	Text.className="Div";
+	Text.innerHTML = Value;
+	return Text;
+}
+
 
 function TableD(V,N){
 	//if(V!=null){
@@ -276,7 +289,7 @@ function ValidCoords(S){
 //Size may vary, but percentage taken will be consistent
 //underscore was the best that I could find that is consistent
 //So I will keep this here as the default
-var EmptySpace = ".";
+var EmptySpace = "_";
 
 var Sprite1;
 
@@ -314,7 +327,7 @@ function AddColumn(Row){
 	var Column = document.createElement("span");
 	Column.className="Column";
 	
-	var T = Text(EmptySpace);
+	var T = Div(EmptySpace);
 	
 	Column.appendChild(T);
 	
@@ -1541,6 +1554,7 @@ this.TranslateByRow = function(Difference,Callback,This){
 	this.AllPivotPositions = this.SetAllPositions(this.PivotPosition);
 	this.Delay=Delay;
 	this.RotationSpeed=RotationSpeed;
+	this.CollisionDetection="Hide";
 	this.Name = "";
 	//Public function callable from object Sprite
 	//Translation Function from here to there
@@ -1588,7 +1602,7 @@ this.TranslateByRow = function(Difference,Callback,This){
 </script>
 </head>
 <body>
-<h1 class="CenterH1">ASCII ART ANIMATION</h1>
+<h1 class="CenterH1">SPRITE ANIMATION</h1>
 
 <!-- Table row maximizes all children of row  -->
 <!--
@@ -1604,8 +1618,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 
 <script type="text/javascript">
 
-var Height = 10;
-var Width = 20;
+var Height = 50;
+var Width = 100;
 
 //Approximately, for every 1px in height, add 2 px in width
 CreateGrid(Height,Width,1);
