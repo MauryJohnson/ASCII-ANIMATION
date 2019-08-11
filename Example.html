@@ -828,7 +828,6 @@ function NotOverwriteNextD(PrevPosition,NextPositions){
 		PrettyPrintASCIIGrid(this.ASCIIGRID)
 		
 		
-		
 	}
 	
 	
@@ -842,10 +841,17 @@ function NotOverwriteNextD(PrevPosition,NextPositions){
 	//Then translate neg
 	this.RotateByPoint = function(Point,D){
 		
-		if(D<0)
-		this.Transpose(true);
-		else
-		this.Transpose(false);
+		if(D<0){
+		var Rotations = Math.round(D*-1/90);
+		for(var i=0; i<Rotations;i+=1)
+			this.Transpose(true);
+		}
+		else{
+		//this.Transpose(false);
+			var Rotations = Math.round(D/90);
+			for(var i=0; i<Rotations;i+=1)
+				this.Transpose(false);
+		}
 		/*
 	
 		D = this.SoftDegree(D);
@@ -1607,7 +1613,7 @@ function ConvertDegrees(X){
 }
 
 var PromptRotationSpeed = 
-	InputPrompt2(Text("Enter Rotation Direction [-360,360] (in 45 deg increments) per move"));
+	InputPrompt2(Text("Enter Rotation Direction [-360,360] (in 90 deg increments) per move"));
 	
 PromptRotationSpeed[1].id="PRS";
 
