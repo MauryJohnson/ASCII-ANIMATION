@@ -16,7 +16,7 @@
 1. Create functionality for making a sprite with images associated with it.
 2. Create an option to save and load a sprite with all of its abilities specified.
 3. Allow movement options teleport, optimal, or diagonal.
-4. Create a physics engine to handle this 2D environment. Then create a tool to make rigid body projectiles.
+4. Create a physics engine to handle this 2D environment. Then create a tool to make rigid body projectiles which can also be saved.
 ### Tools
 
 Created with [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
