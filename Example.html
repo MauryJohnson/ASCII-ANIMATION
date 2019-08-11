@@ -541,11 +541,19 @@ function Sprite(PivotPosition,SubASCIIGrid,Delay,RotationSpeed) {
 		return true;
 	}
 	
-function NotOverwriteNextD(PrevPosition,NextPositions){
+this.NotOverwriteNextD = function (PrevPosition,NextPositions){
 		
-	 	var NextPosition = null;
+		var NP = NextPositions;
+	
+		for(var i in SpriteList){
+	 		var NextPosition = null;
 		
-			NextPosition = NextPositions[PrevPosition];
+	 		if(i!=this.Name)
+	 			NP = SpriteList[i].AllPivotPositions;	
+	 		else
+	 			NP = NextPositions;
+	 		
+			NextPosition = NP[PrevPosition];
 			
 			if(NextPosition){
 			NextPosition = NextPosition[1].split(",");
@@ -563,9 +571,48 @@ function NotOverwriteNextD(PrevPosition,NextPositions){
 			}
 			
 			}
+			
+		}
 		console.log("CAN OVERWRITE:"+PrevPosition);
 		return true;
 	}
+	
+this.NotCollide = function (TheirPosition,NextPositions){
+	
+	var NP = NextPositions;
+
+	for(var i in SpriteList){
+ 		var NextPosition = null;
+	
+ 		if(i!=this.Name)
+ 			NP = SpriteList[i].AllPivotPositions;	
+ 		else
+ 			continue;
+ 		
+		NextPosition = NP[TheirPosition];
+		
+		if(NextPosition){
+		NextPosition = NextPosition[1].split(",");
+		
+		TheirPosition=TheirPosition.split(",");
+		
+		console.log(TheirPosition+"=="+NextPosition+" ??");
+		
+		if(parseInt(NextPosition[0])==
+			parseInt(TheirPosition[0]) &&
+				parseInt(NextPosition[1])==
+					parseInt(TheirPosition[1])){
+			console.log("CANNOT OVERWRITE:"+NextPosition);
+			return false;	
+		}
+		
+		}
+		
+	}
+	console.log("CAN OVERWRITE:"+TheirPosition);
+	return true;
+}
+
 	
 	function GetASCIIGridLengths(){
 		var AG = document.getElementsByClassName("Center")[0]
@@ -1333,18 +1380,19 @@ this.TranslateByRow = function(Difference,Callback,This){
 			
 			
 			if(Next)
-				UpdateValue(ParentNext,Next,
-				this.ASCIIGRID
-				[I2]
-				[J2]	
-				);
+				if(this.NotCollide(ParentNext.id,NextPositions))
+					UpdateValue(ParentNext,Next,
+					this.ASCIIGRID
+					[I2]
+					[J2]	
+					);
 			
 			// IF have a previous item
 			// And this is NOT current pivit position
 			//And not overwriting a next item
 			if(Prev && ParentPrev)
 					{
-					if(NotOverwriteNextD(ParentPrev.id,NextPositions))
+					if(this.NotOverwriteNextD(ParentPrev.id,NextPositions))
 						UpdateValue(ParentPrev,Prev,EmptySpace);
 					}
 			
@@ -1493,6 +1541,7 @@ this.TranslateByRow = function(Difference,Callback,This){
 	this.AllPivotPositions = this.SetAllPositions(this.PivotPosition);
 	this.Delay=Delay;
 	this.RotationSpeed=RotationSpeed;
+	this.Name = "";
 	//Public function callable from object Sprite
 	//Translation Function from here to there
 	//ex if translate from [0,0] to [10,20],
@@ -1747,7 +1796,11 @@ EnterSprite[1].addEventListener("input",function(){
 			//alert("New Sprite");
 			Sprite1 = new Sprite(Coords,Array,500,RS);
 			
+			Sprite1.Name = "Sprite"+Counter;
+			
 			SpriteList["Sprite"+Counter] = Sprite2;
+			
+			Sprite2.Name = "Sprite"+Counter;
 			
 			//Sprite1.Translate([);
 			//ClearTable();
@@ -1761,6 +1814,8 @@ EnterSprite[1].addEventListener("input",function(){
 			Counter+=1;
 			
 			SpriteList["Sprite"+Counter] = Sprite2;
+			
+			Sprite2.Name = "Sprite"+Counter;
 			
 			document.getElementById("Select Sprite").
 			childNodes[0].appendChild(Option("Sprite"+Counter));
@@ -1794,6 +1849,8 @@ Sprite1 = new Sprite([0,0],[
 ["*","*","*","","*"],
 ["*","-","*","","*"]
 ],500);
+
+Sprite1.Name="Sprite"+Counter;
 
 SpriteList["Sprite1"] = Sprite1;
 
