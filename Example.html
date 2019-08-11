@@ -1533,10 +1533,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 	else
 		this.Name=Options["Name"];
 	
+	SpriteList[this.Name] = this;
 	
-	
-	SpriteList["Sprite"+Counter] = this;
-
 	//Public function callable from object Sprite
 	//Translation Function from here to there
 	//ex if translate from [0,0] to [10,20],
@@ -1853,19 +1851,37 @@ Sprite1 = new Sprite([0,0],[
 ],500);
 */
 
+
 Sprite1 = new Sprite({
 	
 	"PivotPosition":[0,0],
 		
 	"SubASCIIGrid":[[" img= "+
-	"https://cdn.discordapp.com/emojis/586691872978632714.png  "]],
+	"https://cdn.discordapp.com/emojis/482151555542548480.png  "]],
 	
 	"Delay":500,
 	
 	"RotationSpeed":0
 		
 	});
-
+	
+/*
+Sprite1 = new Sprite({
+	
+	"PivotPosition":[0,0],
+		
+	"SubASCIIGrid":([
+		["*","","*","","*","*","*"],
+		["*","*","*","","","","*"],
+		["*","","*","","*","*","*"]
+		]),
+		
+	"Delay":500,
+	
+	"RotationSpeed":0
+		
+	});
+*/
 /*
 Sprite1 = new Sprite([0,0],[
 	["*","","*","","*","*","*"],
