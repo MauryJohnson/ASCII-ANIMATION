@@ -833,46 +833,49 @@ this.NotCollide = function (TheirPosition,NextPositions){
 		
 	}
 	
+	//Lengths contains length of each row
+	function CreateGrid(Lengths){
+		
+	}
+	
 	this.Transpose = function(Neg){
 		
 		var AG = [];
 		var AR = [];
 		var RowLengths = [];
 		var Lengths = [];
-		for(var i=0; i<this.ASCIIGRID.length;i+=1)
-			Lengths.push(this.ASCIIGRID[i].length);
+		for(var i=0; i<this.ASCIIGRID.length;i+=1){
+			for(var j=0; j<this.ASCIIGRID[i].length;j+=1){
+				
+				while(AG.length<this.ASCIIGRID[i].length)
+					AG.push([]);
+				
+				AG[j].push(EmptySpace);
+			}
+		}
+			
+		
+		console.log("Transposed Empty:"+this.PrettyPrintASCIIGrid(AG));
+		
+		Lengths.push(null);
+		console.log("All Row Lengths:"+Lengths);
+		
 		var I = 0;
 		
 		if(Neg==false)
 			{
 			
-			var Visited = {};
 			
-			var u = 0;
-			
-			for(var u=0;u<Lengths.length;u+=1){
-				for(var j=u;j<Lengths[u];j+=1){
-					var AR = [];
-					for(var i=this.ASCIIGRID.length-1; i>=0;i-=1){
-						if(this.ASCIIGRID[i][j]){
-							if(!Visited[i+","+j]){
-								Visited[i+","+j] = " ";
-								AR.push(this.ASCIIGRID[i][j]);
-							}
-						}
-						else{
-							AR.push(EmptySpace);
-						}
-					}
-					if(AR.length>0){
-						AG.push(AR);
-						
-					}
-				}	
+
+			for(var i=0; i<this.ASCIIGRID.length;i+=1){
+				for(var j=0; j<this.ASCIIGRID[i].length;j+=1){
+					//if(AG[j])
+					AG[j][i]=this.ASCIIGRID[i][j];
+				}
 			}
 			
 
-			AG = this.FlipGrid(AG,true,true);
+				AG = this.FlipGrid(AG,true,false);
 			
 			}
 		else
@@ -880,26 +883,14 @@ this.NotCollide = function (TheirPosition,NextPositions){
 			
 			var Visited = {};	
 		
-			for(var u=0;u<Lengths.length;u+=1){
-				for(var j=u;j<Lengths[u];j+=1){
-					var AR = [];
-					for(var i=this.ASCIIGRID.length-1; i>=0;i-=1){
-						if(this.ASCIIGRID[i][j]){
-							if(!Visited[i+","+j]){
-								Visited[i+","+j] = " ";
-								AR.push(this.ASCIIGRID[i][j]);
-							}
-						}
-						else{
-							AR.push(EmptySpace);
-						}
-					}
-					if(AR.length>0){
-						AG.push(AR);
-						
-					}
-				}	
+			for(var i=0; i<this.ASCIIGRID.length;i+=1){
+				for(var j=0; j<this.ASCIIGRID[i].length;j+=1){
+					//if(AG[j])
+					AG[j][i]=this.ASCIIGRID[i][j];
+				}
 			}
+			
+			AG = this.FlipGrid(AG,false,true);
 			
 		}
 		
@@ -921,14 +912,14 @@ this.NotCollide = function (TheirPosition,NextPositions){
 	
 	
 	//Flat integer rotation
-	this.Rotate = function(Radians,Radius){
+	//this.Rotate = function(Radians,Radius){
 		
-	}
+	//}
 	
 	//Rotate by a point. translate to point
 	//Then rotate by degree
 	//Then translate neg
-	this.RotateByPoint = function(Point,D){
+	this.Rotate = function(D){
 		
 		if(D<0){
 		var Rotations = Math.round(D*-1/90);
@@ -1360,8 +1351,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 			console.log("ACCESS:"+I2+","+J2+" VAL:"+Value);
 			
 			
-			if(Next)
-				if(this.NotCollide(ParentNext.id,NextPositions))
+			if(Next && ParentNext)
+				if(this.NotCollide(ParentNext.id,NextPositions) || this.Clip==true)
 					UpdateValue(ParentNext,Next,
 					this.ASCIIGRID
 					[I2]
@@ -1524,6 +1515,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 	this.Delay=Options["Delay"];
 	this.RotationSpeed=Options["RotationSpeed"];
 	
+	this.Clip = Options["Clip"];
+	
 	this.CollisionDetection="Hide";
 	
 	if(!Options["Name"]){
@@ -1641,6 +1634,9 @@ SP2[1].addEventListener("change",function(){
 	
 });
 
+var SP3 =  SelectionPrompt("Select an Animation"
+		,["Sprite1"]);
+
 var SP = SelectionPrompt("Select Movement Type"
 		,["row->column","column->row"]);
 		
@@ -1721,8 +1717,7 @@ ToggleRotate.addEventListener("click",function(){
 	var D = ConvertDegrees(document.
 			getElementById("PRS").value);
 	if(D){
-			Sprite1.RotateByPoint(
-			Sprite1.PivotPosition,D);
+			Sprite1.Rotate(D);
 	}
 	
 });
@@ -1817,7 +1812,7 @@ EnterSprite[1].addEventListener("input",function(){
 			//alert("New Sprite");
 			
 			document.getElementById("Select Sprite").
-			childNodes[0].appendChild(Option("Sprite"+Counter));
+			childNodes[0].appendChild(Option("Sprite"+(Counter-1)));
 			
 		}
 		else{
@@ -1851,7 +1846,7 @@ Sprite1 = new Sprite([0,0],[
 ],500);
 */
 
-
+/*
 Sprite1 = new Sprite({
 	
 	"PivotPosition":[0,0],
@@ -1864,24 +1859,23 @@ Sprite1 = new Sprite({
 	"RotationSpeed":0
 		
 	});
-	
-/*
+	*/
 Sprite1 = new Sprite({
 	
 	"PivotPosition":[0,0],
 		
-	"SubASCIIGrid":([
-		["*","","*","","*","*","*"],
-		["*","*","*","","","","*"],
-		["*","","*","","*","*","*"]
-		]),
+	"SubASCIIGrid":([["*","O","*"],
+		 ["","*",""],
+		 ["*","","*"]]),
 		
 	"Delay":500,
+	
+	"Clip":true,
 	
 	"RotationSpeed":0
 		
 	});
-*/
+
 /*
 Sprite1 = new Sprite([0,0],[
 	["*","","*","","*","*","*"],
