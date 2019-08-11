@@ -104,6 +104,12 @@ function TableR(E,V){
 	return tr;
 }
 
+function Option(Name){
+	var O = document.createElement("option");
+	O.innerHTML = Name;
+	return O;
+}
+	
 function SelectionPrompt(Name,Options){
 	var Prompt = document.createElement("div");
 	var Select=document.createElement("select");
@@ -273,6 +279,12 @@ function ValidCoords(S){
 var EmptySpace = ".";
 
 var Sprite1;
+
+var Counter = 1;
+
+//List of sprites!
+var SpriteList = {};
+//SpriteList["Sprite1"] = Sprite1;
 
 //Since a character takes up a const space in column, 
 //This is not needed
@@ -1573,8 +1585,22 @@ var EnterAnimationCoordinates = InputPrompt2(
 
 var TR2 = document.createElement("tr");
 TR2.appendChild(TableD(EnterAnimationCoordinates[0]));
+
+var SP2 = SelectionPrompt("Select Sprite"
+		,["Sprite1"]);
+		
+SP2[1].addEventListener("change",function(){
+
+	console.log("Selected Sprite:"+document.getElementById("Select Sprite").value);
+	
+	Sprite1 = SpriteList[document.getElementById("Select Sprite").value];
+	
+});
+
 var SP = SelectionPrompt("Select Movement Type"
 		,["row->column","column->row"]);
+		
+TR2.appendChild(SP2[1]);
 TR2.appendChild(SP[1]);
 var PromptDelaySpeed = InputPrompt2(Text("Enter Delay Speed (default 500ms)"));
 TR2.appendChild(PromptDelaySpeed[0]);
@@ -1709,9 +1735,6 @@ EnterSprite[1].addEventListener("input",function(){
 	Array.push();
 	console.log("ARRAY:"+Array);
 	
-	//Sprite1 = new Sprite([])
-	
-	
 	var Coords = document.getElementsByTagName("textarea")[0].value.split(",");
 	
 	if(ValidCoords(Coords)==true){
@@ -1723,6 +1746,9 @@ EnterSprite[1].addEventListener("input",function(){
 		if(Sprite1==null){
 			//alert("New Sprite");
 			Sprite1 = new Sprite(Coords,Array,500,RS);
+			
+			SpriteList["Sprite"+Counter] = Sprite2;
+			
 			//Sprite1.Translate([);
 			//ClearTable();
 			//Sprite1.Translate(Sprite1.PivotPosition);
@@ -1730,9 +1756,16 @@ EnterSprite[1].addEventListener("input",function(){
 		else if(ArraysNotEqual(Sprite1.ASCIIGRID,Sprite2.ASCIIGRID)==true){
 			//alert("New Sprite");
 			
-			delete Sprite1;
+			//delete Sprite1;
 			
-			Sprite1=Sprite2;
+			Counter+=1;
+			
+			SpriteList["Sprite"+Counter] = Sprite2;
+			
+			document.getElementById("Select Sprite").
+			childNodes[0].appendChild(Option("Sprite"+Counter));
+			
+			//Sprite1=Sprite2;
 			//ClearTable();
 			//Sprite1.Translate(Sprite1.PivotPosition);
 		}
@@ -1755,22 +1788,23 @@ document.getElementById("5,5").innerHTML="a";
 
 //var 
 
-/*
+
 Sprite1 = new Sprite([0,0],[
-["*","-","*"],
-["-","*","-"],
-["*","-","*"]
+["*","-","*","","*"],
+["*","*","*","","*"],
+["*","-","*","","*"]
 ],500);
-*/
+
+SpriteList["Sprite1"] = Sprite1;
 
 /*
 Sprite1 = new Sprite([0,0],[
 	["*","","*","","*","*","*"],
-	["*","*","*","","","*"],
+	["*","*","*","","","","*"],
 	["*","","*","","*","*","*"]],500);
 */
 
-Sprite1 = new Sprite([0,0],[[EmptySpace,"*"],["*","*","*"]],500);
+//Sprite1 = new Sprite([0,0],[[EmptySpace,"*"],["*","*","*"]],500);
 
 //Sprite1.Translate([5,5]);
 
