@@ -14,7 +14,7 @@
 6. Delay speed affects how fast a sprite moved to get to a position; it cannot be less than 1 millisecond.
 7. Rotation direction, for now, is either clockwise 90 degrees or counterclockwise 90 degrees.
 ## Developing
-1. Create functionality for making a sprite with images associated with it.
+1. Create functionality for making a sprite with images associated with it (DONE).
 2. Create an option to save and load a sprite with all of its abilities specified.
 3. Allow movement options teleport, optimal, or diagonal.
 4. Create a physics engine to handle this 2D environment. Then create a tool to make rigid body projectiles which can also be saved.
