@@ -937,13 +937,17 @@ this.NotCollide = function (TheirPosition,NextPositions){
 	
 	this.RotateDiv=function(Degrees){
 		
-		if(!this.RotationSpeed)
+		if(this.RotationSpeed == null)
 			this.RotationSpeed=0;
 		
+		//console.log(this.RotationSpeed);
+		
+		//
 		this.RotationSpeed=parseInt(this.RotationSpeed)+parseInt(Degrees);
+		//
 		
 		if(Math.floor(this.RotationSpeed / 360) > 0 ||
-		   Math.floor(this.RotationSpeed / -360) > 0)
+		  Math.floor(this.RotationSpeed / -360) > 0)
 			this.RotationSpeed = this.RotationSpeed%360;
 	
 		console.log("Rotation:"+this.RotationSpeed);
@@ -1749,12 +1753,12 @@ PromptRotationSpeed[1].addEventListener("input",function(){
 		
 		var J = ConvertDegrees(this.value);
 	
-		if(J){
-			Sprite1.RotationSpeed = J;
-		}
-		else{
-			Sprite1.RotationSpeed = 0;
-		}
+		//if(J){
+			//Sprite1.RotationSpeed = J;
+		//}
+		//else{
+			//Sprite1.RotationSpeed = 0;
+		//}
 		
 });
 
@@ -1848,6 +1852,8 @@ EnterSprite[1].addEventListener("input",function(){
 				"SubASCIIGrid":Array,
 				
 				"Delay":500,
+				
+				"Clip":true,
 				
 				"RotationSpeed":RS
 					
