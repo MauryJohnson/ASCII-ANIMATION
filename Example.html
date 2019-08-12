@@ -12,6 +12,9 @@ Later will allow this to scale down or up while
 maintaining a sprite
 */
 
+img {
+}
+
 .PromptInput{
 margin:0px auto;
 display:inline-block;
@@ -37,6 +40,7 @@ font-size:2vw;
 .EnterRow{
 margin:0px auto;
 margin-left:28%;
+height:50px;
 width:50%;
 }
 
@@ -48,21 +52,21 @@ width:50%;
 
 .Center{
 	margin: 0px auto;
-	width:200px;
-	height:200px;
+	width:300px;
+	height:300px;
 	display:table;
 	border:2px solid purple;
 }
 
 .Row{
 	width:100%;
-	height:auto;
 	display:table-row;
 	border:0px solid green;
 }
 
 .Column{
 	width:1%;
+	height:10px;
 	text-align:center;
 	display:table-cell;
 	border:0px solid black;
@@ -90,9 +94,20 @@ function Div(Value){
 	var Text = document.createElement("div");
 	Text.className="Div";
 	if(Value.src!=null){
-		console.log("APPEND IMG:"+Value.src);
+		//console.log("APPEND IMG:"+Value.src);
+		//var I = document.createElement("img");
+		//I.src=Value.src;
 		Text.appendChild(Value);
 	}
+	else if(Value.OBJECT!=null){
+		console.log("APPEND empty space:"+Value);
+		var I = document.createElement("div");
+		I.innerHTML = "_";
+		I.style.color="white";
+		I.OBJECT = " ";
+		Text.appendChild(I);
+	}
+
 	else
 		Text.innerHTML = Value;
 	return Text;
@@ -294,7 +309,11 @@ function ValidCoords(S){
 //Size may vary, but percentage taken will be consistent
 //underscore was the best that I could find that is consistent
 //So I will keep this here as the default
-var EmptySpace = "_";
+var EmptySpace = document.createElement("div");
+EmptySpace.OBJECT = ""; 
+EmptySpace.style.backgroundColor="white";
+
+//var EmptySpace = "_";
 
 var Sprite1;
 
@@ -349,6 +368,7 @@ function AddColumn(Row){
 // Precision is just a multiplier to the 
 //width and height
 function CreateGrid(Height,Width,Precision){
+	
 	if(Height<=0 || Width<=0 || 
 			(Precision<=0 && Precision)){
 		console.log("INVALID CREATE GRID, see comments");
@@ -854,7 +874,6 @@ this.NotCollide = function (TheirPosition,NextPositions){
 			}
 		}
 			
-		
 		console.log("Transposed Empty:"+this.PrettyPrintASCIIGrid(AG));
 		
 		Lengths.push(null);
@@ -916,6 +935,40 @@ this.NotCollide = function (TheirPosition,NextPositions){
 		
 	//}
 	
+	this.RotateDiv=function(Degrees){
+		
+		if(!this.RotationSpeed)
+			this.RotationSpeed=0;
+		
+		this.RotationSpeed=parseInt(this.RotationSpeed)+parseInt(Degrees);
+		
+		if(Math.floor(this.RotationSpeed / 360) > 0 ||
+		   Math.floor(this.RotationSpeed / -360) > 0)
+			this.RotationSpeed = this.RotationSpeed%360;
+	
+		console.log("Rotation:"+this.RotationSpeed);
+		
+		for(var i in this.AllPivotPositions){
+			
+			var E = this.AllPivotPositions[i][0].
+			childNodes[0].childNodes[0];
+			
+			if(navigator.userAgent.match("Chrome")){
+				E.style.WebkitTransform = "rotate("+this.RotationSpeed+"deg)";
+			} else if(navigator.userAgent.match("Firefox")){
+				E.style.MozTransform = "rotate("+this.RotationSpeed+"deg)";
+			} else if(navigator.userAgent.match("MSIE")){
+				E.style.msTransform = "rotate("+this.RotationSpeed+"deg)";
+			} else if(navigator.userAgent.match("Opera")){
+				E.style.OTransform = "rotate("+this.RotationSpeed+"deg)";
+			} else {
+				E.style.transform = "rotate("+this.RotationSpeed+"deg)";
+			}
+			
+		}
+		
+	}
+	
 	//Rotate by a point. translate to point
 	//Then rotate by degree
 	//Then translate neg
@@ -932,6 +985,8 @@ this.NotCollide = function (TheirPosition,NextPositions){
 			for(var i=0; i<Rotations;i+=1)
 				this.Transpose(false);
 		}
+		
+		this.RotateDiv(D);
 		
 	}
 this.TranslateByRow = function(Difference,Callback,This){
@@ -1513,6 +1568,9 @@ this.TranslateByRow = function(Difference,Callback,This){
 	this.AllPivotPositions = this.SetAllPositions(this.PivotPosition);
 	
 	this.Delay=Options["Delay"];
+	
+	
+	
 	this.RotationSpeed=Options["RotationSpeed"];
 	
 	this.Clip = Options["Clip"];
@@ -1598,6 +1656,8 @@ var Width = 40;
 //Approximately, for every 1px in height, add 2 px in width
 CreateGrid(Height,Width,1);
 
+//ClearTable();
+
 var Row = document.createElement("table");
 Row.className="EnterRow";
 var EnterCoordinates = InputPrompt2(
@@ -1679,7 +1739,7 @@ function ConvertDegrees(X){
 }
 
 var PromptRotationSpeed = 
-	InputPrompt2(Text("Enter Rotation Direction [-360,360] (in 90 deg increments) per move"));
+	InputPrompt2(Text("Enter Rotation Direction [-360,360]"));
 	
 PromptRotationSpeed[1].id="PRS";
 
@@ -1846,20 +1906,21 @@ Sprite1 = new Sprite([0,0],[
 ],500);
 */
 
-/*
+
 Sprite1 = new Sprite({
 	
 	"PivotPosition":[0,0],
 		
 	"SubASCIIGrid":[[" img= "+
-	"https://cdn.discordapp.com/emojis/482151555542548480.png  "]],
+	"https://cdn.discordapp.com/emojis/586691872978632714.png "]],
 	
 	"Delay":500,
 	
 	"RotationSpeed":0
 		
 	});
-	*/
+	
+	/*
 Sprite1 = new Sprite({
 	
 	"PivotPosition":[0,0],
@@ -1875,7 +1936,7 @@ Sprite1 = new Sprite({
 	"RotationSpeed":0
 		
 	});
-
+*/
 /*
 Sprite1 = new Sprite([0,0],[
 	["*","","*","","*","*","*"],
