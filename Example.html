@@ -1482,6 +1482,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 			
 			var E = this.AllPivotPositions[i][0];
 			if(E)
+				if(this.NotCollide(E.id,this.AllPivotPositions) 
+						|| this.Clip==true)
 				UpdateValue(E,E.childNodes[0],EmptySpace);
 		
 		}
@@ -1505,6 +1507,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 			var S = this.ASCIIGRID[I][J];
 			
 			if(E)
+				if(this.NotCollide(E.id,this.AllPivotPositions) 
+						|| this.Clip==true)
 				UpdateValue(E,E.childNodes[0],S);
 			
 		}
@@ -1853,7 +1857,7 @@ EnterSprite[1].addEventListener("input",function(){
 				
 				"Delay":500,
 				
-				"Clip":true,
+				"Clip":false,
 				
 				"RotationSpeed":RS
 					
