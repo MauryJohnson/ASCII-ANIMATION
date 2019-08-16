@@ -1411,12 +1411,16 @@ this.TranslateByRow = function(Difference,Callback,This){
 			
 			
 			if(Next && ParentNext)
-				if(this.NotCollide(ParentNext.id,NextPositions) || this.Clip==true)
+				if(this.NotCollide(ParentNext.id,NextPositions) 
+				|| this.Clip==true){
+				
+					//alert(this.Clip);
 					UpdateValue(ParentNext,Next,
 					this.ASCIIGRID
 					[I2]
 					[J2]	
 					);
+				}
 			
 			// IF have a previous item
 			// And this is NOT current pivit position
@@ -1581,6 +1585,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 	
 	this.RotationSpeed=Options["RotationSpeed"];
 	
+	//alert(Options["Clip"]);
+	
 	this.Clip = Options["Clip"];
 	
 	this.CollisionDetection="Hide";
@@ -1658,8 +1664,8 @@ this.TranslateByRow = function(Difference,Callback,This){
 
 <script type="text/javascript">
 
-var Height = 20;
-var Width = 40;
+var Height = 25;
+var Width = 50;
 
 //Approximately, for every 1px in height, add 2 px in width
 CreateGrid(Height,Width,1);
@@ -1926,18 +1932,14 @@ Sprite1 = new Sprite({
 	
 	"Delay":500,
 	
-	"RotationSpeed":0
+	"Clip":true,
+	
+	"RotationSpeed":90
 		
 	});
 	
 	/*
-Sprite1 = new Sprite({
-	
-	"PivotPosition":[0,0],
-		
-	"SubASCIIGrid":([["*","O","*"],
-		 ["","*",""],
-		 ["*","","*"]]),
+Sprite1 = new Sprite({"PivotPosition":[0,0],"SubASCIIGrid":([["*","O","*"],["","*",""],["*","","*"]]),
 		
 	"Delay":500,
 	
